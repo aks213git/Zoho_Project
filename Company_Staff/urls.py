@@ -20,6 +20,15 @@ urlpatterns = [
 
 
     # -------------------------------Zoho Modules section--------------------------------
+    
+    
+    #------------price lists-------------------
+    path('all_price_lists', views.all_price_lists, name='all_price_lists'),
+    path('create_price_list/', views.create_price_list, name='create_price_list'),
+    path('price_list_details/<int:price_list_id>/', views.price_list_details, name='price_list_details'),
+    path('edit_price_list/<int:price_list_id>/', views.edit_price_list, name='edit_price_list'),
+    path('delete_price_list/<int:price_list_id>/', views.delete_price_list, name='delete_price_list'),
+    path('toggle_price_list_status/<int:price_list_id>/', views.toggle_price_list_status, name='toggle_price_list_status'),
   
     
 ]
