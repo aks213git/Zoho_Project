@@ -5,32 +5,85 @@
 <body>       
     <div class="body-wrapper">
         <div class="container-fluid">
-            <div style="overflow-x:auto;"> 
-                <h1>All Price Lists</h1>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Serial Number</th>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Type</th>
-                            <th>Rounding</th>
-                            <th>Status</th>
-                            <th>Details</th>
+            <h1>View Price Lists</h1>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" placeholder="Search" class="form-control mb-2">
+                </div>
+                <div class="col-md-1">
+                    <!-- <label>Filter:</label> -->
+                    <select id="status-select" class="form-control">
+                        <option value="all">All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <!-- <label>Sort:</label> -->
+                    <select id="sort-select" class="form-control">
+                        <option value="all">All</option>
+                        <option value="name">Name</option>
+                        <option value="type">Type</option>
+                    </select>
+                </div>
+                <div class="col-md-5 mr-5" >
+                    <a href="" target="_blank" class="btn btn-warning btn-sm">Export</a>
+                    <a href="" target="_blank" class="btn btn-warning btn-sm">Import</a>
+                    <a href="whatsapp://send?text=Check out these price lists:" target="_blank" class="btn btn-warning btn-sm">WhatsApp</a>
+                    <a href="mailto:?subject=Price Lists&body=Check out these price lists:" target="_blank" class="btn btn-warning btn-sm">Email</a>
+                    <a href="{% url 'create_price_list' %}" class="btn btn-warning btn-sm">New</a>
+                </div>
+            </div>
+
+
+            <!-- Price Lists Table -->
+            <div class="table-responsive" style="overflow-x:auto;margin-top: 20px;">
+                <table  class="table mt-lg-2 mt-5 rounded">
+                    <thead class="thead-dark">
+                        <tr style="text-align: center;">
+                            <th scope="col">SERIAL NUMBER</th>
+                            <th scope="col">DATE</th>
+                            <th scope="col">NAME</th>
+                            <th scope="col">DESCRIPTION</th>
+                            <th scope="col">TYPE</th>
+                            <th scope="col">ROUNDING</th>
+                            <th scope="col">STATUS</th>
+                            <th scope="col">DETAILS</th>
+                            <th scope="col">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for price_list in price_lists %}
-                        <tr>
+                        <tr class="text-white" style="text-align: center;">
                             <td>{{ forloop.counter }}</td>
                             <td>{{ price_list.date }}</td>
                             <td>{{ price_list.name }}</td>
-                            <td>{{ price_list.description }}</td>
+                            <td>
+                                {% if price_list.description %}
+                                    <span title="{{ price_list.description }}">
+                                        <i class="fa fa-comment" aria-hidden="true"></i> 
+                                    </span>
+                                {% else %}
+                                    <i class="fa fa-comment-o" aria-hidden="true"></i> 
+                                {% endif %}
+                            </td>
+                            
                             <td>{{ price_list.type }}</td>
-                            <td>{{ price_list.round_off }}</td>
+                            <td class="text-white">
+                                {% if price_list.item_rate_type == 'Percentage' %}
+                                    {{ price_list.get_round_off_display }}
+                                {% elif price_list.item_rate_type == 'Each Item' %}
+                                    Never Mind
+                                {% endif %}
+                            </td>
                             <td>{{ price_list.get_status_display }}</td>
-                            <td><a href="{% url 'price_list_details' price_list.id %}">Details</a></td>
+                            <td><a href="{% url 'price_list_details' price_list.id %}" >View</a></td>
+                            <td style="text-align: center;">
+                                <a href="">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -40,4 +93,25 @@
     </div>
 </body>
 </html>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Sorting
+        $('#sort-select').change(function () {
+            var sortBy = $(this).val();
+            window.location.href = '?sortBy=' + sortBy;
+        });
+
+        // Filtering
+        $('#status-select').change(function () {
+            var filterByStatus = $(this).val();
+            window.location.href = '?filterByStatus=' + filterByStatus;
+        });
+    });
+</script>
+
+
+
 {% endblock %}
+              

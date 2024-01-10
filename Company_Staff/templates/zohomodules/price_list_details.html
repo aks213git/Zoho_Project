@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<body>
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            <div style="overflow-x:auto;"> 
+    <div style="display: flex; justify-content: space-between; padding: 20px;">
+
+    <!-- list of price lists -->
+    <div style="flex: 1;">
+        <h2>All Price Lists</h2>
+        <ul>
+            {% for pl in all_price_lists %}
+                <li><a href="{% url 'price_list_details' price_list_id=pl.id %}">{{ pl.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- details of price list -->
+    <div style="flex: 2; padding-left: 20px;">
+        {% if price_list %}
+            <h2>{{ price_list.name }} Details</h2>
+            <p>Type: {{ price_list.get_type_display }}</p>
+            <p>Item Rate Type: {{ price_list.get_item_rate_type_display }}</p>
+            <p>Description: {{ price_list.description }}</p>
+            <p>Rounding: {{ price_list.get_round_off_display }}</p>
+            
+            <h3>Price List Items</h3>
+            <ul>
+                {% for item in price_list_items %}
+                    <li>{{ item.item.name }} - Standard Rate: {{ item.standard_rate }}, Custom Rate: {{ item.custom_rate }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Transaction History</h3>
+            <ul>
+                {% for transaction in transaction_history %}
+                    <li>{{ transaction.get_action_display }} on {{ transaction.date }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No price list selected.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+</div>
+</div>
+
+
+</body>
+</html>
+
+{% endblock %}

@@ -40,6 +40,7 @@ def company_profile(request):
         log_details= LoginDetails.objects.get(id=log_id)
         dash_details = CompanyDetails.objects.get(login_details=log_details,superadmin_approval=1,Distributor_approval=1)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        
         context = {
             'details': dash_details,
             'allmodules': allmodules
@@ -178,14 +179,49 @@ def staff_profile(request):
 
 
 #  display all price lists
+
+
 def all_price_lists(request):
     price_lists = PriceList.objects.all()
+
+    sortBy = request.GET.get('sortBy')
+    filterByStatus = request.GET.get('filterByStatus')
+
+    if sortBy == 'name':
+        price_lists = price_lists.order_by('name')
+    elif sortBy == 'type':
+        price_lists = price_lists.order_by('type')
+
+    if filterByStatus == 'active':
+        price_lists = price_lists.filter(status='active')
+    elif filterByStatus == 'inactive':
+        price_lists = price_lists.filter(status='inactive')
+
     context = {'price_lists': price_lists}
     return render(request, 'zohomodules/all_price_lists.html', context)
+# def all_price_lists(request):
+#     if 'login_id' in request.session:
+#         log_id = request.session['login_id']
+#         if 'login_id' not in request.session:
+#             return redirect('/')
+#         elif
+#             log_details=LoginDetails.objects.get(id=log_id)
 
+#             details=StaffDetails.objects.get(LoginDetails=log_details)
+#             allmodules= ZohoModules.objects.get(CompanyDetails.company)
+    
+# if 'login_id' in request.session:
+#         log_id = request.session['login_id']
+#         if 'login_id' not in request.session:
+#             return redirect('/')
 
-
-
+# log_details=LoginDetails.objects.get(id=log_id)
+# # if staff
+# details=StaffDetails.objects.get(LoginDetails=log_details)
+# allmodules= ZohoModules.objects.get(CompanyDetails.company)
+# # if company
+# details=CompanyDetails.objects.get(LoginDetails=log_details)
+# allmodules= ZohoModules.objects.get(company=details)
 
 
 def create_price_list(request):
@@ -226,6 +262,7 @@ def create_price_list(request):
         log_details= LoginDetails.objects.get(id=login_id)
         dash_details = CompanyDetails.objects.get(login_details=log_details,superadmin_approval=1,Distributor_approval=1)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        
         context = {
             'company_details': company_details, 
             'items': items,
@@ -281,12 +318,31 @@ def create_price_list(request):
         return redirect('/') 
 
 
-# display the details of selected price list
+# display details of selected price list
 def price_list_details(request, price_list_id):
+    login_id = request.session.get('login_id')
+    log_user = LoginDetails.objects.get(id=login_id)
     price_list = get_object_or_404(PriceList, id=price_list_id)
-    items_in_price_list = PriceListItem.objects.filter(price_list=price_list)
-    context = {'price_list': price_list, 'items_in_price_list': items_in_price_list}
-    return render(request, 'price_list_details.html', context)
+    price_list_items = PriceListItem.objects.filter(price_list=price_list)
+    transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
+
+    all_price_lists = PriceList.objects.filter(company=price_list.company)
+    
+    log_details= LoginDetails.objects.get(id=login_id)
+    dash_details = CompanyDetails.objects.get(login_details=log_details,superadmin_approval=1,Distributor_approval=1)
+    allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+
+    context = {
+        'price_list': price_list,
+        'price_list_items': price_list_items,
+        'transaction_history': transaction_history,
+        'all_price_lists': all_price_lists, 
+        'allmodules': allmodules, 
+        
+    }
+
+    return render(request, 'zohomodules/price_list_details.html', context)
+
 
 # edit a price list
 def edit_price_list(request, price_list_id):
@@ -310,4 +366,7 @@ def delete_price_list(request, price_list_id):
 
 def toggle_price_list_status(request, price_list_id):
     price_list = get_object_or_404(PriceList, id=price_list_id)
+
+
+
 
