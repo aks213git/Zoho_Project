@@ -46,27 +46,15 @@ class Items(models.Model):
 #------------------- PRICE LIST MODULE ------------
 
 class PriceList(models.Model):
-    STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Inactive', 'Inactive'),
-    ]
-
+    
     name = models.CharField(max_length=255, null=True)
     type_choices = [
-        ('Sales', 'Sales'),
-        ('Purchase', 'Purchase'),
-    ]
+        ('Sales', 'Sales'),('Purchase', 'Purchase'),]
     type = models.CharField(max_length=10, choices=type_choices, null=True)
-    item_rate_choices = [
-        ('Percentage', 'Percentage'),
-        ('Each Item', 'Each Item'),
-    ]
+    item_rate_choices = [('Percentage', 'Percentage'),('Each Item', 'Each Item'),]
     item_rate_type = models.CharField(max_length=15, choices=item_rate_choices, null=True)
     description = models.TextField(null=True)
-    percentage_type_choices = [
-        ('Markup', 'Markup'),
-        ('Markdown', 'Markdown'),
-    ]
+    percentage_type_choices = [('Markup', 'Markup'),('Markdown', 'Markdown'),]
     percentage_type = models.CharField(max_length=10, choices=percentage_type_choices, null=True, blank=True)
     percentage_value = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     round_off_choices = [
@@ -80,6 +68,7 @@ class PriceList(models.Model):
     currency_choices = [('Indian Rupee', 'Indian Rupee')]
     currency = models.CharField(max_length=20, choices=currency_choices, null=True)
     date = models.DateField(auto_now_add=True, null=True)
+    STATUS_CHOICES = [('Active', 'Active'),('Inactive', 'Inactive'),]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
 
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)

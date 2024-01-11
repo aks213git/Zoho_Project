@@ -23,6 +23,7 @@
         {% if price_list %}
             <h2>{{ price_list.name }} Details</h2>
             <p>Type: {{ price_list.get_type_display }}</p>
+            <p>Details: {{ price_list.get_type_display }}</p>
             <p>Item Rate Type: {{ price_list.get_item_rate_type_display }}</p>
             <p>Description: {{ price_list.description }}</p>
             <p>Rounding: {{ price_list.get_round_off_display }}</p>
