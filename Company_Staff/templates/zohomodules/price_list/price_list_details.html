@@ -5,52 +5,122 @@
 <body>
     <div class="body-wrapper">
         <div class="container-fluid">
-            <div style="overflow-x:auto;"> 
-    <div style="display: flex; justify-content: space-between; padding: 20px;">
+            <div style="overflow-x:auto;">
+                <div style="display: flex; justify-content: space-between; padding: 20px;">
 
-    <!-- list of price lists -->
-    <div style="flex: 1;">
-        <h2>All Price Lists</h2>
-        <ul>
-            {% for pl in all_price_lists %}
-                <li><a href="{% url 'price_list_details' price_list_id=pl.id %}">{{ pl.name }}</a></li>
-            {% endfor %}
-        </ul>
+                    <!-- All Price Lists -->
+                    <div style="flex: 1; border-right: 5px solid rgb(219, 219, 219); padding-right: 20px;">
+                        <h2>All Price Lists</h2>
+                        <input type="text" id="searchInput" placeholder="Search by Price List Name" onkeyup="searchPriceLists()" class="form-control mb-2">
+
+                        <label for="sort">Sort:</label>
+                        <select id="sort" onchange="sortPriceLists()" class="btn btn-light btn-sm">
+                            <option value="all">All</option>
+                            <option value="name">Item Name</option>
+                            <option value="type">Type</option>
+                        </select>
+
+                        <label for="filter">Filter:</label>
+                        <select id="filter" onchange="filterPriceLists()" class="btn btn-light btn-sm">
+                            <option value="all">All</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <a href="{% url 'create_price_list' %}" class="btn btn-warning btn-sm" onclick="openCreatePage()">New</a>
+                        
+
+                       
+                        <ul id="priceListNames">
+                            {% for pl in price_lists %}
+                                <li><a href="{% url 'price_list_details' price_list_id=pl.id %}">{{ pl.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!--Price List Details -->
+                    <div style="flex: 2; padding-left: 20px;" >
+                        {% if price_lists %}
+                        <h1>{{ price_list.name }}</h1>
+
+                        <a href="{% url 'edit_price_list' price_list.id %}"><button class="btn btn-warning btn-sm">Edit</button></a>
+                        <button class="btn btn-warning btn-sm" onclick="sharePriceList()" >Share</button>
+                        <button class="btn btn-warning btn-sm" onclick="printPriceList()">Print</button>
+                        <button class="btn btn-warning btn-sm" onclick="generatePDF()">PDF</button>
+                        <button class="btn btn-warning btn-sm" onclick="addComment()">Comment</button>
+                        <button class="btn btn-warning btn-sm" onclick="attachFile()">Attach</button>
+                        <a href="{% url 'delete_price_list' price_list.id %}"><button class="btn btn-warning btn-sm">Delete</button></a>                       
+                        <button id="toggleStatusButton" class="btn btn-warning btn-sm" data-status="{{ price_list.status }}" onclick="toggleStatus()">
+                            {% if price_list.status == 'Active' %}
+                                Make Inactive
+                            {% elif price_list.status == 'Inactive' %}
+                                Make Active
+                            {% endif %}
+                        </button>
+                        
+
+                            <h2>{{ price_list.name }} Details</h2>
+                            <p>Type: {{ price_list.type }}</p>
+                            <p>Description: {{ price_list.description }}</p>
+                            <p>Details: {{ price_list.percentage_type }}; {{ price_list.percentage_value }}%</p>
+                            <p>Rounding: {{ price_list.round_off }}</p>
+                            <p>Currency: {{ price_list.currency }}</p>
+
+
+                            <!-- display transaction history -->
+                            <h3>Transaction History</h3>
+                            <ul>
+                                {% for transaction in transaction_history %}
+                                    <li>{{ transaction.get_action_display }} on {{ transaction.date }} by {{ transaction.user.username }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No price list selected.</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- details of price list -->
-    <div style="flex: 2; padding-left: 20px;">
-        {% if price_list %}
-            <h2>{{ price_list.name }} Details</h2>
-            <p>Type: {{ price_list.get_type_display }}</p>
-            <p>Details: {{ price_list.get_type_display }}</p>
-            <p>Item Rate Type: {{ price_list.get_item_rate_type_display }}</p>
-            <p>Description: {{ price_list.description }}</p>
-            <p>Rounding: {{ price_list.get_round_off_display }}</p>
-            
-            <h3>Price List Items</h3>
-            <ul>
-                {% for item in price_list_items %}
-                    <li>{{ item.item.name }} - Standard Rate: {{ item.standard_rate }}, Custom Rate: {{ item.custom_rate }}</li>
-                {% endfor %}
-            </ul>
+    <script>
+        function searchPriceLists() {
+        const searchInput = document.getElementById('searchInput');
+        const searchText = searchInput.value.toLowerCase();
 
-            <h3>Transaction History</h3>
-            <ul>
-                {% for transaction in transaction_history %}
-                    <li>{{ transaction.get_action_display }} on {{ transaction.date }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No price list selected.</p>
-        {% endif %}
-    </div>
+        const filteredPriceLists = priceLists.filter(pl => pl.name.toLowerCase().includes(searchText));
 
-</div>
+        
+        updatePriceListUI(filteredPriceLists);
+    }
 
-</div>
-</div>
+        function sortPriceLists() {
+        }
 
+        function filterPriceLists() {
+        }
+
+
+        function sharePriceList() {
+        }
+
+        function printPriceList() {
+        }
+
+        function generatePDF() {
+        }
+
+        function addComment() {
+        }
+
+        function attachFile() {
+        }
+
+        function toggleStatus() {
+            const priceListId = {{ price_list.id }};
+            window.location.href = `/toggle_price_list_status/${priceListId}/`;
+        }
+    </script>
 
 </body>
 </html>

@@ -56,7 +56,7 @@ class PriceList(models.Model):
     description = models.TextField(null=True)
     percentage_type_choices = [('Markup', 'Markup'),('Markdown', 'Markdown'),]
     percentage_type = models.CharField(max_length=10, choices=percentage_type_choices, null=True, blank=True)
-    percentage_value = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    percentage_value = models.IntegerField(null=True, blank=True)
     round_off_choices = [
         ('Never Mind', 'Never Mind'),
         ('Nearest Whole Number', 'Nearest Whole Number'),
