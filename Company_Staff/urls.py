@@ -29,6 +29,8 @@ urlpatterns = [
     path('edit_price_list/<int:price_list_id>/', views.edit_price_list, name='edit_price_list'),
     path('delete_price_list/<int:price_list_id>/', views.delete_price_list, name='delete_price_list'),
     path('toggle_price_list_status/<int:price_list_id>/', views.toggle_price_list_status, name='toggle_price_list_status'),
+    path('add_comment/<int:price_list_id>/', views.add_comment, name='add_comment'),
+    path('view_comment/<int:price_list_id>/', views.view_comment, name='view_comment'),
   
     
 ]

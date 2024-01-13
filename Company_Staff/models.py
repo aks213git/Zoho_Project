@@ -92,3 +92,11 @@ class PriceListTransactionHistory(models.Model):
         ('Edited', 'Edited')
         ]
     action = models.CharField(max_length=10, choices=action_choices,null=True)
+
+class PriceListComment(models.Model):
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE)
+    price_list = models.ForeignKey(PriceList, on_delete=models.CASCADE)
+    comment = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True)
+

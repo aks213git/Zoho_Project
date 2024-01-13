@@ -10,25 +10,45 @@
                     <h1 class="text-light">View Price Lists</h1>
                     <br>
 
-                    <div class="row ">
+                    <div class="row bg-dark ">
                         <div class="col-md-4">
                             <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
                         </div>
                         <div class="col-md-1">
-                            <select id="status-select" class="form-control border border-warning select2">
+                            <!-- <select id="status-select" class="form-control border border-warning select2">
                                 <option value="all" data-icon="fa fa-filter">&#xf0b0; Filter</option>
                                 <option value="all">All</option>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
-                            </select>
+                            </select> -->
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                    <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-1">
-                            <select id="sort-select" class="form-control border border-warning select2">
+                            <!-- <select id="sort-select" class="form-control border border-warning select2">
                                 <option value="all" data-icon="fas fa-sort">&#xf0b0; Sort</option>
                                 <option value="all">All</option>
                                 <option value="name">Name</option>
                                 <option value="type">Type</option>
-                            </select>
+                            </select> -->
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-sort"></i> Sort
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
+                                    <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
+                                    <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6 d-flex justify-content-end">
                             <a href="" target="_blank" class="btn btn-outline-warning">
@@ -92,10 +112,8 @@
                                             <i class="fa fa-trash text-warning" aria-hidden="true"></i>
                                         </a>
                                     </td>
-                                    
                                 </tr>
                                 {% endfor %}
-                            
                             </tbody>
                         </table>
                     </div>
@@ -154,7 +172,9 @@
             });
         });
     </script>
+    
 </body>
+
 </html>
 
 
@@ -162,12 +182,4 @@
 
 {% endblock %}
               
-
-
-
-
-
-
-
-
 

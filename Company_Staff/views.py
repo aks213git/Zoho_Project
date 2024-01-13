@@ -190,21 +190,23 @@ def all_price_lists(request):
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-        sortBy = request.GET.get('sortBy')
-        filterByStatus = request.GET.get('filterByStatus')
-        if sortBy == 'name':
+        sort_option = request.GET.get('sort', 'all')  
+        filter_option = request.GET.get('filter', 'all')
+        if sort_option == 'name':
             price_lists = price_lists.order_by('name')
-        elif sortBy == 'type':
+        elif sort_option == 'type':
             price_lists = price_lists.order_by('type')
-        
-        if filterByStatus == 'active':
-            price_lists = price_lists.filter(status='active')
-        elif filterByStatus == 'inactive':
-            price_lists = price_lists.filter(status='inactive')
+
+        if filter_option == 'active':
+            price_lists = price_lists.filter(status='Active')
+        elif filter_option == 'inactive':
+            price_lists = price_lists.filter(status='Inactive')
         context={
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
+            'sort_option': sort_option,
+            'filter_option': filter_option,
         }
         return render(request,'zohomodules/price_list/all_price_lists.html',context)
     
@@ -212,20 +214,23 @@ def all_price_lists(request):
         dash_details = StaffDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details.company)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-        sortBy = request.GET.get('sortBy')
-        filterByStatus = request.GET.get('filterByStatus')
-        if sortBy == 'name':
+        sort_option = request.GET.get('sort', 'name')  
+        filter_option = request.GET.get('filter', 'all')
+        if sort_option == 'name':
             price_lists = price_lists.order_by('name')
-        elif sortBy == 'type':
+        elif sort_option == 'type':
             price_lists = price_lists.order_by('type')
-        if filterByStatus == 'active':
-            price_lists = price_lists.filter(status='active')
-        elif filterByStatus == 'inactive':
-            price_lists = price_lists.filter(status='inactive')
+
+        if filter_option == 'active':
+            price_lists = price_lists.filter(status='Active')
+        elif filter_option == 'inactive':
+            price_lists = price_lists.filter(status='Inactive')
         context={
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
+            'sort_option': sort_option,
+            'filter_option': filter_option,
         }
         return render(request,'zohomodules/price_list/all_price_lists.html',context)
 
@@ -271,6 +276,7 @@ def create_price_list(request):
         context={
             'details':dash_details,
             'allmodules': allmodules,
+            'item': item,
 
         }
         return render(request,'zohomodules/price_list/create_price_list.html',context)
@@ -309,6 +315,7 @@ def create_price_list(request):
             'details':dash_details,
             
             'allmodules': allmodules,
+            'item': item,
         }
         return render(request,'zohomodules/price_list/create_price_list.html',context)
     
@@ -327,11 +334,24 @@ def price_list_details(request, price_list_id):
         price_lists = PriceList.objects.filter(company=dash_details)
         price_list = get_object_or_404(PriceList, id=price_list_id)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        sort_option = request.GET.get('sort', 'name')  
+        filter_option = request.GET.get('filter', 'all')
+        if sort_option == 'name':
+            price_lists = price_lists.order_by('name')
+        elif sort_option == 'type':
+            price_lists = price_lists.order_by('type')
+
+        if filter_option == 'active':
+            price_lists = price_lists.filter(status='Active')
+        elif filter_option == 'inactive':
+            price_lists = price_lists.filter(status='Inactive')
         context={
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
             'price_list': price_list,
+            'sort_option': sort_option,
+            'filter_option': filter_option,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
@@ -340,11 +360,24 @@ def price_list_details(request, price_list_id):
         price_lists = PriceList.objects.filter(company=dash_details.company)
         price_list = get_object_or_404(PriceList, id=price_list_id)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+        sort_option = request.GET.get('sort', 'name')  
+        filter_option = request.GET.get('filter', 'all')
+        if sort_option == 'name':
+            price_lists = price_lists.order_by('name')
+        elif sort_option == 'type':
+            price_lists = price_lists.order_by('type')
+
+        if filter_option == 'active':
+            price_lists = price_lists.filter(status='Active')
+        elif filter_option == 'inactive':
+            price_lists = price_lists.filter(status='Inactive')
         context={
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
             'price_list': price_list,
+            'sort_option': sort_option,
+            'filter_option': filter_option,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
@@ -539,4 +572,69 @@ def toggle_price_list_status(request, price_list_id):
         )
         return redirect('price_list_details', price_list_id=price_list_id)
 
-
+def add_comment(request, price_list_id):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+        else:
+            return redirect('/')
+    log_details = LoginDetails.objects.get(id=log_id)
+    if log_details.user_type == "Company":
+        dash_details = CompanyDetails.objects.get(login_details=log_details)
+        price_list = get_object_or_404(PriceList, id=price_list_id, company=dash_details)
+        if request.method == 'POST':
+            comment = request.POST.get('comment_text')
+            PriceListComment.objects.create(
+                company=dash_details,
+                login_details=log_details,
+                price_list=price_list,
+                comment=comment
+            )
+            
+        return redirect('price_list_details', price_list_id=price_list_id)
+    if log_details.user_type == "Staff":
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        price_list = get_object_or_404(PriceList, id=price_list_id, company=dash_details.company)
+        if request.method == 'POST':
+            comment = request.POST.get('comment')
+            PriceListComment.objects.create(
+                company=dash_details.company,
+                login_details=log_details,
+                price_list=price_list,
+                comment=comment
+            )
+        return redirect('price_list_details', price_list_id=price_list_id)
+    
+def view_comment(request, price_list_id):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+        else:
+            return redirect('/')
+    log_details= LoginDetails.objects.get(id=log_id)
+    
+    if log_details.user_type=="Company":
+        dash_details = CompanyDetails.objects.get(login_details=log_details)
+        price_lists = PriceList.objects.filter(company=dash_details)
+        price_list_comments = PriceListComment.objects.get( id=price_list_id,company=dash_details)
+        allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        context={
+            'details':dash_details,
+            'allmodules': allmodules,
+            'price_lists': price_lists,
+            'price_list_comments': price_list_comments,
+        }
+        return render(request,'zohomodules/price_list/price_list_details.html',context)
+    
+    if log_details.user_type=="Staff":
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        price_lists = PriceList.objects.filter(company=dash_details.company)
+        price_list_comments = PriceListComment.objects.get( id=price_list_id,company=dash_details.company)
+        allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+        context={
+            'details':dash_details,
+            'allmodules': allmodules,
+            'price_lists': price_lists,
+            'price_list_comments': price_list_comments,
+        }
+        return render(request,'zohomodules/price_list/price_list_details.html',context)
