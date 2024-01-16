@@ -149,7 +149,7 @@
                         <h3>Transaction History</h3>
                         <ul>
                             {% for transaction in transaction_history %}
-                            <li>{{ transaction.action }} on {{ transaction.date }} by {{ transaction.user.username }}</li>
+                            <li>{{ transaction.action }} on {{ transaction.date }} by {{ transaction.login_details.username }}</li>
                             {% endfor %}
                         </ul>
                         {% else %}

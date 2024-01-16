@@ -313,15 +313,14 @@ def create_price_list(request):
                 PriceListItem.objects.create(
                     price_list=new_price_list,
                     item=item,
-                    standard_rate=standard_rate,
+                    standard_rate=item.selling_price if item.item_type == 'Sales' else item.purchase_price,
                     custom_rate=custom_rate,
                     company=dash_details.company,
                     login_details=log_details,
                 )
             return redirect('all_price_lists')
         context={
-            'details':dash_details,
-            
+            'details':dash_details, 
             'allmodules': allmodules,
             'items': items,
         }
@@ -439,6 +438,12 @@ def edit_price_list(request, price_list_id):
             price_list.round_off = request.POST['round_off']
             price_list.currency = request.POST['currency']
             price_list.save()
+            PriceListTransactionHistory.objects.create(
+                company=dash_details,
+                login_details=log_details,
+                price_list=price_list,
+                action='Edited',
+            )
             items_data = request.POST.getlist('items')
             for item_data in items_data:
                 item_id, custom_rate = map(int, item_data.split('-'))

@@ -118,7 +118,8 @@
                                     {% for item in items %}
                                     <tr>
                                         <td>{{ item.item_name }}</td>
-                                        <td id="standard-rate-{{ item.id }}">
+                                        <td>{{ item.selling_price }}</td>
+                                        <!-- <td id="standard-rate-{{ item.id }}" data-type="{{ item.item_type }}">
                                             {% if item.item_type == 'Sales' %}
                                                 Sales: {{ item.selling_price }}
                                             {% elif item.item_type == 'Purchase' %}
@@ -126,10 +127,11 @@
                                             {% else %}
                                                 Unknown Type
                                             {% endif %}
-                                        </td>
+                                        </td> -->
+                                        
                                         <td>
-                                            <input type="number" name="items" value="{{ item.id }}-{{ item.selling_price }}"
-                                                class="form-control-sm">
+                                            <input type="number" name="custom_rate"
+                                                class="form-control-sm custom-rate-input">
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -162,11 +164,23 @@
 
             function handleTypeChange() {
                 const selectedType = Array.from(typeRadios).find(radio => radio.checked);
-
+                const standardRateElements = document.querySelectorAll('.custom-rate-input');
+            
                 if (selectedType && selectedType.value === "Sales") {
+                    standardRateElements.forEach(element => {
+                        const itemId = element.value.split('-')[0];
+                        const standardRate = document.getElementById(`standard-rate-${itemId}`);
+                        standardRate.innerText = `Sales: ${element.value.split('-')[1]}`;
+                    });
                 } else if (selectedType && selectedType.value === "Purchase") {
+                    standardRateElements.forEach(element => {
+                        const itemId = element.value.split('-')[0];
+                        const standardRate = document.getElementById(`standard-rate-${itemId}`);
+                        standardRate.innerText = `Purchase: ${element.value.split('-')[1]}`;
+                    });
                 }
             }
+            
 
             function handleItemRateTypeChange() {
                 const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
