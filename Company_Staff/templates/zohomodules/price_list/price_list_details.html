@@ -9,8 +9,10 @@
                 <div class="row p-4 rounded" style="background-color: black; border-radius: 5px">
                     <div class="col-md-4 p-2" style="border-right: 5px solid rgb(219, 219, 219); background-color: black;">
                         <h4 class="text-light mb-4">All Price Lists</h4>
-                        <div class="input-group mb-3">
-                            <input type="text" id="search" class="form-control form-control-sm text-dark bg-light" placeholder="Search..." autocomplete="off">
+                        <div class="  d-flex mb-3 ">
+                            <div class="input-group">
+                                <input type="text" id="search"  class="form-control text-dark bg-light " placeholder="Search..." autocomplete="off">
+                            </div>
                             <!-- <div class="dropdown">
                                 <button class="btn btn-light btn-sm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Sort <i class="fa fa-sort text-warning" aria-hidden="true"></i>
@@ -21,30 +23,30 @@
                                     <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
                                 </div>
                             </div> -->
-                            <div class="input-group-append">
+                            <div class="input-group-append ms-1">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-sort"></i> Sort
+                                    <i class="fas fa-sort"></i> 
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
-                                    <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
-                                    <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
-                                    <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Opening Balance</a>
+                                    <a class="dropdown-item text-dark" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item text-dark" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
+                                    <a class="dropdown-item text-dark" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
                                 </div>
                             </div>
-                            <div class="input-group-append">
+                            <div class="input-group-append ms-1">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fa fa-filter"></i> Filter
+                                    <i class="fa fa-filter"></i> 
                                 </button>
                                 <!-- <button class="btn btn-light btn-sm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Filter <i class="fa fa-filter text-warning" aria-hidden="true"></i>
                                 </button> -->
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?filter=all{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">All</a>
-                                    <a class="dropdown-item" href="?filter=active{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Active</a>
-                                    <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                <div class="dropdown-menu text-dark">
+                                    <a class="dropdown-item text-dark" href="?filter=all{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item text-dark" href="?filter=active{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                    <a class="dropdown-item text-dark" href="?filter=inactive{% if sort_option != 'name' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
                                 </div>
                             </div>
-                            <a class="btn btn-warning btn-sm ml-2" href="{% url 'create_price_list' %}" role="button">New</a>
+                            <a class="btn btn-outline-warning  ms-1" href="{% url 'create_price_list' %}" role="button"> New </a>
                         </div>
                         <ul id="priceListNames">
                             {% for pl in price_lists %}
@@ -55,25 +57,32 @@
                     <div class="col-md-8">
                         {% if price_lists %}
                         <h2 class="text-light mb-4">{{ price_list.name }}</h2>
-                        <div class="">
+                        <div class="d-flex justify-content-end">
                             <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o text-warning" aria-hidden="true"></i></a>
-                            <button class="btn btn-outline-warning" onclick="sharePriceList()">Share</button>
-                            <button class="btn btn-outline-warning" onclick="printPriceList()"><i class="fa fa-print" aria-hidden="true"></i></button>
-                            <button class="btn btn-outline-warning" onclick="generatePDF()"><i class="fa fa-file-pdf"></i></button>
-                            <div class="dropdown">
-                                <button type="button" class="btn btn-outline-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" >Share to WhatsApp</a>
+                                    <a class="dropdown-item text-dark" >Share to Email</a>
+                                    
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-warning ms-2" onclick="printPriceList()"><i class="fa fa-print" aria-hidden="true"></i></button>
+                            <button class="btn btn-outline-warning ms-2" onclick="generatePDF()"><i class="fa fa-file-pdf"></i></button>
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa-regular fa-comment"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#addCommentModal">Add Comment</a>
-                                    <a class="dropdown-item" href="#" onclick="viewComments()">View Comments</a>
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#addCommentModal">Add Comment</a>
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#viewCommentsModal">View Comments</a>
                                 </div>
                             </div>
-                            <a class="btn btn-outline-warning" href="#" data-toggle="modal" data-target="#viewCommentsModal">view </a>
-                            <a class="btn btn-outline-warning" href="#" data-toggle="modal" data-target="#addCommentModal">Add </a>
-                            <button class="btn btn-outline-warning" onclick="attachFile()"><i class="fa-solid fa-paperclip"></i></button>
-                            <button class="btn btn-outline-warning"><i class="fa-solid fa-trash"><a href="{% url 'delete_price_list' price_list.id %}"></a></i></button>
-                            <button id="toggleStatusButton" class="btn btn-outline-warning" data-status="{{ price_list.status }}" onclick="toggleStatus()">
+                            <button class="btn btn-outline-warning ms-2" onclick="attachFile()"><i class="fa-solid fa-paperclip"></i></button>
+                            <button class="btn btn-outline-warning ms-2"><i class="fa-solid fa-trash"><a href="{% url 'delete_price_list' price_list.id %}"></a></i></button>
+                            <button id="toggleStatusButton" class="btn btn-outline-warning ms-2" data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
                                 Active
                                 {% elif price_list.status == 'Inactive' %}
@@ -115,6 +124,7 @@
                                             <ul>
                                                 {% for comment in price_list_comments %}
                                                 <li style="color: black;">{{ comment.comment }}</li>
+                                                <li style="color: black;">{{ comment.date_added }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </form>
@@ -131,16 +141,17 @@
                                     <p><b>Details:</b> {{ price_list.percentage_type }}; {{ price_list.percentage_value }}%</p>
                                     <p><b>Rounding:</b> {{ price_list.round_off }}</p>
                                     <p><b>Currency:</b> {{ price_list.currency }}</p>
+                                    <!-- <p class="text-light ms-2">Created by: {{ creator.username }}</p> -->
                                 </div>
                             </div>
                         </div>
                         <!-- display transaction history -->
-                        <!-- <h3>Transaction History</h3>
+                        <h3>Transaction History</h3>
                         <ul>
                             {% for transaction in transaction_history %}
-                            <li>{{ transaction.get_action_display }} on {{ transaction.date }} by {{ transaction.user.username }}</li>
+                            <li>{{ transaction.action }} on {{ transaction.date }} by {{ transaction.user.username }}</li>
                             {% endfor %}
-                        </ul> -->
+                        </ul>
                         {% else %}
                         <p>No price list selected.</p>
                         {% endif %}
@@ -207,6 +218,7 @@
         }
 
         function printPriceList() {
+            window.print();
         }
 
         function generatePDF() {

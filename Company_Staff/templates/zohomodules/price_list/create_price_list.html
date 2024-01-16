@@ -105,6 +105,36 @@
                                     </select>
                                 </div>
                             </div>
+                            <h2 class="text-light">Customize Item Rates in Bulk</h2>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Item Details</th>
+                                        <th>Standard Rate (INR)</th>
+                                        <th>Custom Rate (INR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.item_name }}</td>
+                                        <td id="standard-rate-{{ item.id }}">
+                                            {% if item.item_type == 'Sales' %}
+                                                Sales: {{ item.selling_price }}
+                                            {% elif item.item_type == 'Purchase' %}
+                                                Purchase: {{ item.purchase_price }}
+                                            {% else %}
+                                                Unknown Type
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <input type="number" name="items" value="{{ item.id }}-{{ item.selling_price }}"
+                                                class="form-control-sm">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <br>
@@ -112,28 +142,6 @@
                     
 
 
-                    <h2 class="text-light">Customize Item Rates in Bulk</h2>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Item Details</th>
-                                <th>Standard Rate (INR)</th>
-                                <th>Custom Rate (INR)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in item %}
-                            <tr>
-                                <td>{{ item.item_name }}</td>
-                                <td>{{ item.selling_price }}</td>
-                                <td>
-                                    <input type="number" name="items" value="{{ item.id }}-{{ item.selling_price }}"
-                                        class="form-control-sm">
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
 
                     <br>
                     <button type="submit" class="btn btn-warning">Save</button>

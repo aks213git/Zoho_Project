@@ -10,7 +10,7 @@
                     <h1 class="text-light">View Price Lists</h1>
                     <br>
 
-                    <div class="row bg-dark ">
+                    <div class="row  h-100 ">
                         <div class="col-md-4">
                             <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
                         </div>
@@ -21,9 +21,9 @@
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select> -->
-                            <div class="input-group-append">
+                            <div class="input-group-append h-100" >
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fa fa-filter"></i> Filter
+                                    <i class="fa fa-filter"></i> 
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
@@ -33,15 +33,9 @@
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <!-- <select id="sort-select" class="form-control border border-warning select2">
-                                <option value="all" data-icon="fas fa-sort">&#xf0b0; Sort</option>
-                                <option value="all">All</option>
-                                <option value="name">Name</option>
-                                <option value="type">Type</option>
-                            </select> -->
-                            <div class="input-group-append">
+                            <div class="input-group-append h-100">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-sort"></i> Sort
+                                    <i class="fas fa-sort"></i> 
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
                                     <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
@@ -50,16 +44,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 d-flex justify-content-end">
-                            <a href="" target="_blank" class="btn btn-outline-warning">
-                                <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
-                            </a>
-                            <a href="" target="_blank" class="btn btn-outline-warning">
-                                <i class="fa fa-file-import" style="color: #FFD43B;" aria-hidden="true"></i> Import
-                            </a>
-                            <a href="whatsapp://send?text=Check out these price lists:" target="_blank" class="btn btn-outline-warning">WhatsApp</a>
-                            <a href="mailto:?subject=Price Lists&body=Check out these price lists:" target="_blank" class="btn btn-outline-warning">Email</a>
-                            <a href="{% url 'create_price_list' %}" class="btn btn-warning">New</a>
+                        <div class="col-md-6 d-flex justify-content-end h-100">
+                            <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export</a>
+                            <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import</a>
+                            <a href="whatsapp://send?text=Check out these price lists:" target="_blank" class="btn btn-outline-warning ms-1">WhatsApp</a>
+                            <a href="mailto:?subject=Price Lists&body=Check out these price lists:" target="_blank" class="btn btn-outline-warning ms-1">Email</a>
+                            <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
                         </div>
                     </div>
                     

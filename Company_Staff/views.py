@@ -214,7 +214,7 @@ def all_price_lists(request):
         dash_details = StaffDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details.company)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-        sort_option = request.GET.get('sort', 'name')  
+        sort_option = request.GET.get('sort', 'all')  
         filter_option = request.GET.get('filter', 'all')
         if sort_option == 'name':
             price_lists = price_lists.order_by('name')
@@ -244,6 +244,8 @@ def create_price_list(request):
     if log_details.user_type=="Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        items = Items.objects.filter(company=dash_details)
+        
         if request.method == 'POST':
             new_price_list = PriceList.objects.create(
                 name=request.POST['name'],
@@ -257,33 +259,39 @@ def create_price_list(request):
                 company=dash_details,
                 login_details=log_details,
                 )
+            PriceListTransactionHistory.objects.create(
+                company=dash_details,
+                login_details=log_details,
+                price_list=new_price_list,
+                action='Created',
+            )
 
             items_data = request.POST.getlist('items')
             for item_data in items_data:
                 item_id, custom_rate = map(int, item_data.split('-'))
                 item = get_object_or_404(Items, id=item_id)
+                standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
                 PriceListItem.objects.create(
                     price_list=new_price_list,
                     item=item,
-                    standard_rate=item.selling_price,
+                    standard_rate=standard_rate,
                     custom_rate=custom_rate,
                     company=dash_details,
                     login_details=log_details,
-                    
                 )
-
+                
             return redirect('all_price_lists')
         context={
             'details':dash_details,
             'allmodules': allmodules,
-            'item': item,
-
+            'items': items,
         }
         return render(request,'zohomodules/price_list/create_price_list.html',context)
     
     if log_details.user_type=="Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+        items = Items.objects.filter(company=dash_details.company)
         if request.method == 'POST':
             new_price_list = PriceList.objects.create(
                 name=request.POST['name'],
@@ -301,21 +309,21 @@ def create_price_list(request):
             for item_data in items_data:
                 item_id, custom_rate = map(int, item_data.split('-'))
                 item = get_object_or_404(Items, id=item_id)
+                standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
                 PriceListItem.objects.create(
                     price_list=new_price_list,
                     item=item,
-                    standard_rate=item.selling_price,
+                    standard_rate=standard_rate,
                     custom_rate=custom_rate,
                     company=dash_details.company,
-                    login_details=log_details
+                    login_details=log_details,
                 )
-
             return redirect('all_price_lists')
         context={
             'details':dash_details,
             
             'allmodules': allmodules,
-            'item': item,
+            'items': items,
         }
         return render(request,'zohomodules/price_list/create_price_list.html',context)
     
@@ -334,7 +342,7 @@ def price_list_details(request, price_list_id):
         price_lists = PriceList.objects.filter(company=dash_details)
         price_list = get_object_or_404(PriceList, id=price_list_id)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-        sort_option = request.GET.get('sort', 'name')  
+        sort_option = request.GET.get('sort', 'all')  
         filter_option = request.GET.get('filter', 'all')
         if sort_option == 'name':
             price_lists = price_lists.order_by('name')
@@ -345,6 +353,7 @@ def price_list_details(request, price_list_id):
             price_lists = price_lists.filter(status='Active')
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
+        transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
         context={
             'details':dash_details,
             'allmodules': allmodules,
@@ -352,6 +361,7 @@ def price_list_details(request, price_list_id):
             'price_list': price_list,
             'sort_option': sort_option,
             'filter_option': filter_option,
+            'transaction_history': transaction_history,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
@@ -360,7 +370,7 @@ def price_list_details(request, price_list_id):
         price_lists = PriceList.objects.filter(company=dash_details.company)
         price_list = get_object_or_404(PriceList, id=price_list_id)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-        sort_option = request.GET.get('sort', 'name')  
+        sort_option = request.GET.get('sort', 'all')  
         filter_option = request.GET.get('filter', 'all')
         if sort_option == 'name':
             price_lists = price_lists.order_by('name')
@@ -604,6 +614,8 @@ def add_comment(request, price_list_id):
                 comment=comment
             )
         return redirect('price_list_details', price_list_id=price_list_id)
+
+
     
 def view_comment(request, price_list_id):
     if 'login_id' in request.session:
@@ -616,7 +628,7 @@ def view_comment(request, price_list_id):
     if log_details.user_type=="Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details)
-        price_list_comments = PriceListComment.objects.get( id=price_list_id,company=dash_details)
+        price_list_comments = PriceListComment.objects.filter(id=price_list_id,company=dash_details)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
         context={
             'details':dash_details,
@@ -638,3 +650,54 @@ def view_comment(request, price_list_id):
             'price_list_comments': price_list_comments,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
+
+
+def pdf_price_list(request,price_list_id):
+    
+    cmp1 = company.objects.get(id=request.session['uid'])
+   
+
+    rbill=recurring_bill.objects.get(rbillid=id)
+    ritem = recurringbill_item.objects.all().filter(bill=id)
+
+    total = rbill.grand_total
+    words_total = num2words(total)
+    vendor_full_name = rbill.vendor_name
+    first_name, last_name = vendor_full_name.split(' ')
+    Vendor = vendor.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
+    vendor_email = Vendor.email
+    vendor_gstin=Vendor.gstin
+    customer_full_name = rbill.customer_name
+    first_name, last_name = customer_full_name.split(' ')
+    Customer = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
+    customer_email = Customer.email
+    customer_gstin=Customer.gstin
+    template_path = 'app1/pdf_rbill.html'
+    context ={
+        'rbill':rbill,
+        'cmp1':cmp1,
+        'ritem':ritem,
+        'vendor_email':vendor_email,'vendor_gstin': vendor_gstin,
+        'customer_email':customer_email,'customer_gstin':customer_gstin
+
+    }
+    fname=rbill.billno
+   
+    # Create a Django response object, and specify content_type as pdftemp_creditnote
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    response['Content-Disposition'] =f'attachment; filename=recurringbill-{fname}.pdf'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    
+
+
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
