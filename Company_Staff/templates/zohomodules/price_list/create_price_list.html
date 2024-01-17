@@ -114,12 +114,13 @@
                                         <th>Custom Rate (INR)</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <!-- <tbody>
                                     {% for item in items %}
                                     <tr>
                                         <td>{{ item.item_name }}</td>
                                         <td>{{ item.selling_price }}</td>
-                                        <!-- <td id="standard-rate-{{ item.id }}" data-type="{{ item.item_type }}">
+                                        ------------------------ 
+                                        <td id="standard-rate-{{ item.id }}" data-type="{{ item.item_type }}">
                                             {% if item.item_type == 'Sales' %}
                                                 Sales: {{ item.selling_price }}
                                             {% elif item.item_type == 'Purchase' %}
@@ -127,11 +128,23 @@
                                             {% else %}
                                                 Unknown Type
                                             {% endif %}
-                                        </td> -->
+                                        </td>
+                                         -------------------------------------------------------
                                         
                                         <td>
                                             <input type="number" name="custom_rate"
                                                 class="form-control-sm custom-rate-input">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody> -->
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.item_name }}</td>
+                                        <td class="standard-rate" data-sales-price="{{ item.selling_price }}" data-purchase-price="{{ item.purchase_price }}"></td>
+                                        <td>
+                                            <input type="number" name="custom_rate" value="0.00" class="form-control-sm custom-rate-input">
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -152,7 +165,57 @@
             </div>
         </div>
     </div>
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const typeRadios = document.getElementsByName("type");
+            const itemRateTypeRadios = document.getElementsByName("item_rate_type");
+            const percentageFields = document.getElementById("percentage_fields");
+            const currencyField = document.getElementById("currency_field");
+            const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
+            const percentageValueInput = document.getElementsByName("percentage_value")[0];
+    
+            function handleTypeChange() {
+                const selectedType = Array.from(typeRadios).find(radio => radio.checked);
+                const standardRateElements = document.querySelectorAll('.standard-rate');
+                
+                if (selectedType && selectedType.value === "Sales") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = `Sales: ${element.dataset.salesPrice}`;
+                    });
+                } else if (selectedType && selectedType.value === "Purchase") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = `Purchase: ${element.dataset.purchasePrice}`;
+                    });
+                }
+            }
+    
+            function handleItemRateTypeChange() {
+                const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
+    
+                if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
+                    percentageFields.style.display = "block";
+                    currencyField.style.display = "none";
+                } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "block";
+    
+                    percentageTypeSelect.removeAttribute("required");
+                    percentageValueInput.removeAttribute("required");
+                } else {
+                    percentageFields.style.display = "none";
+                    currencyField.style.display = "none";
+                }
+            }
+    
+            typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
+    
+            itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
+    
+            handleTypeChange();
+            handleItemRateTypeChange();
+        });
+    </script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const typeRadios = document.getElementsByName("type");

@@ -58,7 +58,7 @@
                         {% if price_lists %}
                         <h2 class="text-light mb-4">{{ price_list.name }}</h2>
                         <div class="d-flex justify-content-end">
-                            <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o text-warning" aria-hidden="true"></i></a>
+                            <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o " aria-hidden="true"></i></a>
                             <div class="dropdown ms-2">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa-solid fa-share-nodes"></i>
@@ -80,7 +80,16 @@
                                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#viewCommentsModal">View Comments</a>
                                 </div>
                             </div>
-                            <button class="btn btn-outline-warning ms-2" onclick="attachFile()"><i class="fa-solid fa-paperclip"></i></button>
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item text-dark" href="#" onclick="attachFile()">Attach</a>
+                                    <a class="dropdown-item text-dark" href="#" onclick="downloadFile()">Download</a>
+                                </div>
+                            </div>
+                            
                             <button class="btn btn-outline-warning ms-2"><i class="fa-solid fa-trash"><a href="{% url 'delete_price_list' price_list.id %}"></a></i></button>
                             <button id="toggleStatusButton" class="btn btn-outline-warning ms-2" data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
@@ -120,14 +129,21 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="{% url 'view_comment' price_list.id %}">
+                                        <form method="post" action="{% url 'view_comment' price_list.id %}">
                                             <ul>
                                                 {% for comment in price_list_comments %}
                                                 <li style="color: black;">{{ comment.comment }}</li>
                                                 <li style="color: black;">{{ comment.date_added }}</li>
                                                 {% endfor %}
                                             </ul>
+                                            
                                         </form>
+                                        <!-- <ul>
+                                            {% for comment in price_list_comments %}
+                                            <li style="color: black;">{{ comment.comment }}</li>
+                                            <li style="color: black;">{{ comment.date_added }}</li>
+                                            {% endfor %}
+                                        </ul> -->
                                     </div>
                                 </div>
                             </div>
@@ -138,19 +154,48 @@
                                 <div class="ml-10">
                                     <p><b>Type:</b> {{ price_list.type }}</p>
                                     <p><b>Description:</b> {{ price_list.description }}</p>
-                                    <p><b>Details:</b> {{ price_list.percentage_type }}; {{ price_list.percentage_value }}%</p>
+                                    
+                                    {% if price_list.item_rate_type == 'Percentage' %}
+                                        <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                                        <!-- <p><b>Details:</b> {{ price_list.item_rate_type }}</p>
+                                        <p><b>Percentage Type:</b> {{ price_list.percentage_type }}</p>
+                                        <p><b>Percentage Value:</b> {{ price_list.percentage_value }}%</p> -->
+                                    {% elif price_list.item_rate_type == 'Each Item' %}
+                                        <p><b>Details:</b> Each Item</p>
+                                    {% endif %}
+                                    
                                     <p><b>Rounding:</b> {{ price_list.round_off }}</p>
                                     <p><b>Currency:</b> {{ price_list.currency }}</p>
-                                    <!-- <p class="text-light ms-2">Created by: {{ creator.username }}</p> -->
                                 </div>
+                            </div>
+                            <div class="mt-4 text-white table rounded">
+                                <h3 class="text-white">Items in Price List</h3>
+                                <table class="table table-bordered rounded text-white" >
+                                    <thead>
+                                        <tr>
+                                            <th>Item Name</th>
+                                            <th>Standard Rate</th>
+                                            <th>Custom Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                                            <tr>
+                                                <td>{{ item.item.item_name }}</td>
+                                                <td>{{ item.standard_rate }}</td>
+                                                <td>{{ item.custom_rate }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                         <!-- display transaction history -->
                         <h3>Transaction History</h3>
                         <ul>
-                            {% for transaction in transaction_history %}
+                        {% for transaction in transaction_history %}
                             <li>{{ transaction.action }} on {{ transaction.date }} by {{ transaction.login_details.username }}</li>
-                            {% endfor %}
+                        {% endfor %}
                         </ul>
                         {% else %}
                         <p>No price list selected.</p>
@@ -161,18 +206,10 @@
             
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    
-    
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-   
-
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
 <script src="https://kit.fontawesome.com/76ed4bac95.js" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />

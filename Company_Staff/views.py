@@ -240,12 +240,14 @@ def create_price_list(request):
             log_id = request.session['login_id']
         else:
             return redirect('/')
-    log_details= LoginDetails.objects.get(id=log_id)
-    if log_details.user_type=="Company":
+    
+    log_details = LoginDetails.objects.get(id=log_id)
+
+    if log_details.user_type == "Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
-        allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+        allmodules = ZohoModules.objects.get(company=dash_details, status='New')
         items = Items.objects.filter(company=dash_details)
-        
+
         if request.method == 'POST':
             new_price_list = PriceList.objects.create(
                 name=request.POST['name'],
@@ -258,7 +260,8 @@ def create_price_list(request):
                 currency=request.POST['currency'],
                 company=dash_details,
                 login_details=log_details,
-                )
+            )
+
             PriceListTransactionHistory.objects.create(
                 company=dash_details,
                 login_details=log_details,
@@ -266,32 +269,35 @@ def create_price_list(request):
                 action='Created',
             )
 
-            items_data = request.POST.getlist('items')
-            for item_data in items_data:
-                item_id, custom_rate = map(int, item_data.split('-'))
-                item = get_object_or_404(Items, id=item_id)
-                standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
+            # Get the list of custom rates for each item
+            custom_rates = request.POST.getlist('custom_rate')
+
+            # Loop through the items and their corresponding custom rates
+            for item, custom_rate in zip(items, custom_rates):
+                standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
                 PriceListItem.objects.create(
+                    company=dash_details,
+                    login_details=log_details,
                     price_list=new_price_list,
                     item=item,
                     standard_rate=standard_rate,
                     custom_rate=custom_rate,
-                    company=dash_details,
-                    login_details=log_details,
                 )
-                
+
             return redirect('all_price_lists')
-        context={
-            'details':dash_details,
+
+        context = {
+            'details': dash_details,
             'allmodules': allmodules,
             'items': items,
         }
-        return render(request,'zohomodules/price_list/create_price_list.html',context)
-    
-    if log_details.user_type=="Staff":
+        return render(request, 'zohomodules/price_list/create_price_list.html', context)
+
+    if log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
-        allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+        allmodules = ZohoModules.objects.get(company=dash_details.company, status='New')
         items = Items.objects.filter(company=dash_details.company)
+
         if request.method == 'POST':
             new_price_list = PriceList.objects.create(
                 name=request.POST['name'],
@@ -305,26 +311,120 @@ def create_price_list(request):
                 company=dash_details.company,
                 login_details=log_details
             )
-            items_data = request.POST.getlist('items')
-            for item_data in items_data:
-                item_id, custom_rate = map(int, item_data.split('-'))
-                item = get_object_or_404(Items, id=item_id)
-                standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
+            
+            custom_rates = request.POST.getlist('custom_rate')
+            for item, custom_rate in zip(items, custom_rates):
+                standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
                 PriceListItem.objects.create(
-                    price_list=new_price_list,
-                    item=item,
-                    standard_rate=item.selling_price if item.item_type == 'Sales' else item.purchase_price,
-                    custom_rate=custom_rate,
                     company=dash_details.company,
                     login_details=log_details,
+                    price_list=new_price_list,
+                    item=item,
+                    standard_rate=standard_rate,
+                    custom_rate=custom_rate,
                 )
+
             return redirect('all_price_lists')
-        context={
-            'details':dash_details, 
+
+        context = {
+            'details': dash_details,
             'allmodules': allmodules,
             'items': items,
         }
-        return render(request,'zohomodules/price_list/create_price_list.html',context)
+        return render(request, 'zohomodules/price_list/create_price_list.html', context)
+
+
+# def create_price_list(request):
+#     if 'login_id' in request.session:
+#         if request.session.has_key('login_id'):
+#             log_id = request.session['login_id']
+#         else:
+#             return redirect('/')
+#     log_details= LoginDetails.objects.get(id=log_id)
+#     if log_details.user_type=="Company":
+#         dash_details = CompanyDetails.objects.get(login_details=log_details)
+#         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
+#         items = Items.objects.filter(company=dash_details)
+        
+#         if request.method == 'POST':
+#             new_price_list = PriceList.objects.create(
+#                 name=request.POST['name'],
+#                 type=request.POST['type'],
+#                 item_rate_type=request.POST['item_rate_type'],
+#                 description=request.POST['description'],
+#                 percentage_type=request.POST['percentage_type'],
+#                 percentage_value=request.POST['percentage_value'],
+#                 round_off=request.POST['round_off'],
+#                 currency=request.POST['currency'],
+#                 company=dash_details,
+#                 login_details=log_details,
+#                 )
+#             PriceListTransactionHistory.objects.create(
+#                 company=dash_details,
+#                 login_details=log_details,
+#                 price_list=new_price_list,
+#                 action='Created',
+#             )
+
+#             items_data = request.POST.getlist('items')
+#             for item_data in items_data:
+#                 item_id, custom_rate = map(int, item_data.split('-'))
+#                 item = get_object_or_404(Items, id=item_id)
+#                 standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
+#                 PriceListItem.objects.create(
+#                     price_list=new_price_list,
+#                     item=item,
+#                     standard_rate=standard_rate,
+#                     custom_rate=custom_rate,
+#                     company=dash_details,
+#                     login_details=log_details,
+#                 )
+                
+#             return redirect('all_price_lists')
+#         context={
+#             'details':dash_details,
+#             'allmodules': allmodules,
+#             'items': items,
+#         }
+#         return render(request,'zohomodules/price_list/create_price_list.html',context)
+    
+#     if log_details.user_type=="Staff":
+#         dash_details = StaffDetails.objects.get(login_details=log_details)
+#         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
+#         items = Items.objects.filter(company=dash_details.company)
+#         if request.method == 'POST':
+#             new_price_list = PriceList.objects.create(
+#                 name=request.POST['name'],
+#                 type=request.POST['type'],
+#                 item_rate_type=request.POST['item_rate_type'],
+#                 description=request.POST['description'],
+#                 percentage_type=request.POST['percentage_type'],
+#                 percentage_value=request.POST['percentage_value'],
+#                 round_off=request.POST['round_off'],
+#                 currency=request.POST['currency'],
+#                 company=dash_details.company,
+#                 login_details=log_details
+#             )
+#             items_data = request.POST.getlist('items')
+#             for item_data in items_data:
+#                 item_id, custom_rate = map(int, item_data.split('-'))
+#                 item = get_object_or_404(Items, id=item_id)
+#                 standard_rate = item.selling_price if item.item_type == 'Sales' else item.purchase_price
+#                 PriceListItem.objects.create(
+#                     price_list=new_price_list,
+#                     item=item,
+#                     standard_rate=item.selling_price if item.item_type == 'Sales' else item.purchase_price,
+#                     custom_rate=custom_rate,
+#                     company=dash_details.company,
+#                     login_details=log_details,
+#                 )
+#             return redirect('all_price_lists')
+#         context={
+#             'details':dash_details, 
+#             'allmodules': allmodules,
+#             'items': items,
+#         }
+#         return render(request,'zohomodules/price_list/create_price_list.html',context)
     
 
 # display details of selected price list
@@ -353,6 +453,9 @@ def price_list_details(request, price_list_id):
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
         transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
+        items = PriceListItem.objects.filter(company=dash_details, price_list=price_list)
+        latest_transaction = PriceListTransactionHistory.objects.filter(price_list=price_list)
+
         context={
             'details':dash_details,
             'allmodules': allmodules,
@@ -360,7 +463,9 @@ def price_list_details(request, price_list_id):
             'price_list': price_list,
             'sort_option': sort_option,
             'filter_option': filter_option,
+            'latest_transaction': latest_transaction,
             'transaction_history': transaction_history,
+            'items':items,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
@@ -380,6 +485,8 @@ def price_list_details(request, price_list_id):
             price_lists = price_lists.filter(status='Active')
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
+        transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
+        items = Items.objects.filter(company=dash_details.company, price_list=price_list)
         context={
             'details':dash_details,
             'allmodules': allmodules,
@@ -387,6 +494,8 @@ def price_list_details(request, price_list_id):
             'price_list': price_list,
             'sort_option': sort_option,
             'filter_option': filter_option,
+            'transaction_history': transaction_history,
+            'items':items,
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
@@ -628,34 +737,29 @@ def view_comment(request, price_list_id):
             log_id = request.session['login_id']
         else:
             return redirect('/')
-    log_details= LoginDetails.objects.get(id=log_id)
+    log_details = LoginDetails.objects.get(id=log_id)
     
-    if log_details.user_type=="Company":
+    if log_details.user_type == "Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details)
-        price_list_comments = PriceListComment.objects.filter(id=price_list_id,company=dash_details)
-        allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-        context={
-            'details':dash_details,
-            'allmodules': allmodules,
+        price_list_comments = PriceListComment.objects.filter(comment=price_list_id)
+        context = {
+            'details': dash_details,
             'price_lists': price_lists,
             'price_list_comments': price_list_comments,
         }
-        return render(request,'zohomodules/price_list/price_list_details.html',context)
-    
-    if log_details.user_type=="Staff":
+        return render(request, 'zohomodules/price_list/price_list_details.html', context)
+
+    if log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details.company)
-        price_list_comments = PriceListComment.objects.get( id=price_list_id,company=dash_details.company)
-        allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
-        context={
-            'details':dash_details,
-            'allmodules': allmodules,
+        price_list_comments = PriceListComment.objects.filter(price_list=price_list_id, company=dash_details.company)
+        context = {
+            'details': dash_details,
             'price_lists': price_lists,
             'price_list_comments': price_list_comments,
         }
-        return render(request,'zohomodules/price_list/price_list_details.html',context)
-
+        return render(request, 'zohomodules/price_list/price_list_details.html', context)
 
 def pdf_price_list(request,price_list_id):
     
