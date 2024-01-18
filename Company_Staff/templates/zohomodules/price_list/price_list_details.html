@@ -90,7 +90,7 @@
                                 </div>
                             </div>
                             
-                            <button class="btn btn-outline-warning ms-2"><i class="fa-solid fa-trash"><a href="{% url 'delete_price_list' price_list.id %}"></a></i></button>
+                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 text-reset text-decoration-none text-warning"><i class="fa fa-trash"></i></a>
                             <button id="toggleStatusButton" class="btn btn-outline-warning ms-2" data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
                                 Active

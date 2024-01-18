@@ -107,14 +107,15 @@
                             <tbody>
                                 {% for item in items %}
                                 <tr>
-                                    <td>{{ item.item_name }}</td>
-                                    <td>{{ item.selling_price }}</td>
+                                    <td>{{ item.item.item_name }}</td>
+                                    <td class="standard-rate" data-sales-price="{{ item.item.selling_price }}" data-purchase-price="{{ item.item.purchase_price }}"></td>
                                     <td>
-                                        <input type="number" name="items" value="{{ item.id }}-{{ item.selling_price }}" class="form-control-sm">
+                                        <input type="number" name="custom_rate" class="form-control-sm custom-rate-input" value="{{ item.custom_rate }}">
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
+                            
                         </table>
                     </div><br>
 
@@ -122,6 +123,7 @@
                     <br>
                     <button type="submit" class="btn btn-warning">Save</button>
                     <button type="button" class="btn btn-danger">Cancel</button>
+                    
                 </form>
             </div>
         </div>
@@ -138,9 +140,16 @@
 
             function handleTypeChange() {
                 const selectedType = Array.from(typeRadios).find(radio => radio.checked);
-
+                const standardRateElements = document.querySelectorAll('.standard-rate');
+                
                 if (selectedType && selectedType.value === "Sales") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = `Sales: ${element.dataset.salesPrice}`;
+                    });
                 } else if (selectedType && selectedType.value === "Purchase") {
+                    standardRateElements.forEach(element => {
+                        element.innerText = `Purchase: ${element.dataset.purchasePrice}`;
+                    });
                 }
             }
 

@@ -76,7 +76,9 @@
                                 <tr class="text-white" style="text-align: center;">
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{ price_list.date }}</td>
-                                    <td>{{ price_list.name }}</td>
+                                    
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.name }}</td></a>
+                                
                                     <td>
                                         {% if price_list.description %}
                                             <span title="{{ price_list.description }}">
@@ -96,7 +98,13 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ price_list.get_status_display }}</td>
-                                    <td ><a href="{% url 'price_list_details' price_list.id %}" class="text-warning">View</a></td>
+                                    <td>
+                                        {% if price_list.item_rate_type == 'Percentage' %}
+                                            {{ price_list.percentage_type }}
+                                        {% elif price_list.item_rate_type == 'Each Item' %}
+                                            Each Item
+                                        {% endif %}
+                                    </td>
                                     <td style="text-align: center;">
                                         <a href="{% url 'delete_price_list' price_list.id %}">
                                             <i class="fa fa-trash text-warning" aria-hidden="true"></i>
