@@ -2,7 +2,13 @@ from django.shortcuts import render,redirect,get_object_or_404
 from Register_Login.models import *
 from Register_Login.views import logout
 from . models import *
-
+from django.contrib import messages
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from io import BytesIO
 # Create your views here.
 
 
@@ -246,11 +252,16 @@ def create_price_list(request):
     if log_details.user_type == "Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         allmodules = ZohoModules.objects.get(company=dash_details, status='New')
-        items = Items.objects.filter(company=dash_details)
+        items = Items.objects.filter(company=dash_details,activation_tag='active')
 
         if request.method == 'POST':
+            name = request.POST['name']
+            if PriceList.objects.filter(name=name, company=dash_details).exists():
+                messages.error(request, f"A Price List with the name '{name}' already exists.")
+                return redirect('create_price_list')
+            
             new_price_list = PriceList.objects.create(
-                name=request.POST['name'],
+                name=name,
                 type=request.POST['type'],
                 item_rate_type=request.POST['item_rate_type'],
                 description=request.POST['description'],
@@ -291,7 +302,7 @@ def create_price_list(request):
     if log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
         allmodules = ZohoModules.objects.get(company=dash_details.company, status='New')
-        items = Items.objects.filter(company=dash_details.company)
+        items = Items.objects.filter(company=dash_details.company,activation_tag='active')
 
         if request.method == 'POST':
             new_price_list = PriceList.objects.create(
@@ -505,31 +516,6 @@ def price_list_details(request, price_list_id):
     
 
 
-    # login_id = request.session.get('login_id')
-    # price_list = get_object_or_404(PriceList, id=price_list_id)
-    # price_list_items = PriceListItem.objects.filter(price_list=price_list)
-    # transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
-
-    # all_price_lists = PriceList.objects.filter(company=price_list.company)
-    
-    # log_details= LoginDetails.objects.get(id=login_id)
-    # dash_details = CompanyDetails.objects.get(login_details=log_details,superadmin_approval=1,Distributor_approval=1)
-    # allmodules= ZohoModules.objects.get(company=dash_details,status='New')
-
-    # context = {
-    #     'price_list': price_list,
-    #     'price_list_items': price_list_items,
-    #     'transaction_history': transaction_history,
-    #     'all_price_lists': all_price_lists, 
-    #     'allmodules': allmodules, 
-        
-    # }
-
-    # return render(request, 'zohomodules/price_list/price_list_details.html', context)
-
-
-
-
 
 def delete_price_list(request, price_list_id):
     if 'login_id' in request.session:
@@ -637,6 +623,7 @@ def add_comment(request, price_list_id):
             )
         return redirect('price_list_details', price_list_id=price_list_id)
    
+
 def view_comment(request, price_list_id):
     if 'login_id' in request.session:
         if request.session.has_key('login_id'):
@@ -667,52 +654,75 @@ def view_comment(request, price_list_id):
         }
         return render(request, 'zohomodules/price_list/price_list_details.html', context)
 
-def pdf_price_list(request,price_list_id):
-    
-    cmp1 = company.objects.get(id=request.session['uid'])
-   
 
-    rbill=recurring_bill.objects.get(rbillid=id)
-    ritem = recurringbill_item.objects.all().filter(bill=id)
+def email_pricelist(request, price_list_id):
+    try:
+        price_list = PriceList.objects.get(id=price_list_id)
+        price_list_item = PriceListItem.objects.filter( price_list=price_list)
 
-    total = rbill.grand_total
-    words_total = num2words(total)
-    vendor_full_name = rbill.vendor_name
-    first_name, last_name = vendor_full_name.split(' ')
-    Vendor = vendor.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
-    vendor_email = Vendor.email
-    vendor_gstin=Vendor.gstin
-    customer_full_name = rbill.customer_name
-    first_name, last_name = customer_full_name.split(' ')
-    Customer = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
-    customer_email = Customer.email
-    customer_gstin=Customer.gstin
-    template_path = 'app1/pdf_rbill.html'
-    context ={
-        'rbill':rbill,
-        'cmp1':cmp1,
-        'ritem':ritem,
-        'vendor_email':vendor_email,'vendor_gstin': vendor_gstin,
-        'customer_email':customer_email,'customer_gstin':customer_gstin
+        if request.method == 'POST':
+            emails_string = request.POST['email_ids']
+            emails_list = [email.strip() for email in emails_string.split(',')]
+            email_message = request.POST['email_message']
 
-    }
-    fname=rbill.billno
-   
-    # Create a Django response object, and specify content_type as pdftemp_creditnote
-    response = HttpResponse(content_type='application/pdf')
-    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
-    response['Content-Disposition'] =f'attachment; filename=recurringbill-{fname}.pdf'
-    # find the template and render it.
-    template = get_template(template_path)
-    html = template.render(context)
+            context = {
+                'price_list': price_list,
+                'price_list_item': price_list_item,
+            }
 
-    # create a pdf
-    pisa_status = pisa.CreatePDF(
-       html, dest=response)
-    
+            template_path = 'zohomodules/price_list/price_list_email_pdf.html'
+            template = get_template(template_path)
+            html = template.render(context)
+            result = BytesIO()
+            pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+            pdf = result.getvalue()
+
+            filename = f'Price_List_Details.pdf'
+            subject = f"Price List Details: {price_list.name}"
+            email = EmailMessage(subject, f"Hi,\nPlease find the attached Price List Details. \n{email_message}\n\n--\nRegards,\n{price_list.name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+            email.attach(filename, pdf, "application/pdf")
+            email.send(fail_silently=False)
+
+            msg = messages.success(request, 'Details have been shared via email successfully..!')
+            return redirect('price_list_details', price_list_id=price_list_id)  
+
+    except Exception as e:
+        print(e)
+        messages.error(request, f'{e}')
+        return redirect('all_price_lists')  
 
 
-    # if error then show some funy view
-    if pisa_status.err:
-       return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+def price_list_pdf(request, price_list_id):
+    try:
+        price_list = PriceList.objects.get(id=price_list_id)
+        price_list_item = PriceListItem.objects.filter(price_list=price_list)
+
+        context = {
+            'price_list': price_list,
+            'price_list_item': price_list_item,
+        }
+
+        template_path = 'zohomodules/price_list/price_list_email_pdf.html'
+        template = get_template(template_path)
+        html = template.render(context)
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+        pdf = result.getvalue()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{price_list.name}_Details.pdf"'
+        response.write(pdf)
+        return response
+    except Exception as e:
+        print(e)
+        messages.error(request, f'{e}')
+        return redirect('all_price_lists')
+
+def attach_file(request, price_list_id):
+    price_list = PriceList.objects.get(pk=price_list_id)
+    if request.method == 'POST':
+        attachment = request.FILES.get('attachment')
+        price_list.attachment = attachment
+        price_list.save()
+        return redirect('price_list_details', price_list_id=price_list.id)
+    return HttpResponse("Invalid request method.")
+

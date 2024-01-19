@@ -7,8 +7,20 @@
     <div class="body-wrapper">
         <div class="container-fluid">
             <div class="overflow-x:auto  mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;" >
-
                 <h1 class="text-white">Create Price List</h1>
+                {% if messages %}
+						{% for message in messages %}
+							<label id="messageLabel" for="" class="text-center mb-3" style="background-color: rgb(255, 0, 0,0.5); width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+						{% endfor %}
+						<script>
+							setTimeout(function() {
+								var messageLabel = document.getElementById('messageLabel');
+								if (messageLabel) {
+									messageLabel.style.display = 'none';
+								}
+							}, 3000);
+						</script>
+					{% endif %}
                 <br>
                 <form method="post" action="{% url 'create_price_list' %}">
                     {% csrf_token %}

@@ -13,16 +13,6 @@
                             <div class="input-group">
                                 <input type="text" id="search"  class="form-control text-dark bg-light " placeholder="Search..." autocomplete="off">
                             </div>
-                            <!-- <div class="dropdown">
-                                <button class="btn btn-light btn-sm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Sort <i class="fa fa-sort text-warning" aria-hidden="true"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
-                                    <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
-                                    <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
-                                </div>
-                            </div> -->
                             <div class="input-group-append ms-1">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-sort"></i> 
@@ -57,6 +47,11 @@
                     <div class="col-md-8">
                         {% if price_lists %}
                         <h2 class="text-light mb-4">{{ price_list.name }}</h2>
+                        {% if messages %}
+                                {% for message in messages %}
+                                    <label id="messageLabel" for="" class="text-center mb-3" style="background-color: rgb(255, 0, 0,0.5); width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                                {% endfor %}
+					        {% endif %}
                         <div class="d-flex justify-content-end">
                             <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o " aria-hidden="true"></i></a>
                             <div class="dropdown ms-2">
@@ -65,12 +60,13 @@
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item text-dark" >Share to WhatsApp</a>
-                                    <a class="dropdown-item text-dark" >Share to Email</a>
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#EmailModal" >Share to Email</a>
                                     
                                 </div>
                             </div>
                             <button class="btn btn-outline-warning ms-2" onclick="printPriceList()"><i class="fa fa-print" aria-hidden="true"></i></button>
-                            <button class="btn btn-outline-warning ms-2" onclick="generatePDF()"><i class="fa fa-file-pdf"></i></button>
+                            <a href="{% url 'price_list_pdf' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fa fa-file-pdf"></i></a>
+
                             <div class="dropdown ms-2">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa-regular fa-comment"></i>
@@ -85,12 +81,15 @@
                                     <i class="fa-solid fa-paperclip"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item text-dark" href="#" onclick="attachFile()">Attach</a>
-                                    <a class="dropdown-item text-dark" href="#" onclick="downloadFile()">Download</a>
+                                    <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#attachFileModal">Attach File</a>
+                                    <a class="dropdown-item text-dark" href="{% if price_list.attachment %}{{ price_list.attachment.url }}{% else %}#{% endif %}" download="{% if price_list.attachment %}{{ price_list.attachment.name }}{% endif %}" {% if not price_list.attachment %}style="display: none;"{% endif %}>Download File</a>
+
+                                    
+
                                 </div>
                             </div>
                             
-                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 text-reset text-decoration-none text-warning"><i class="fa fa-trash"></i></a>
+                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fa fa-trash"></i></a>
                             <button id="toggleStatusButton" class="btn btn-outline-warning ms-2" data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
                                 Active
@@ -99,6 +98,65 @@
                                 {% endif %}
                             </button>
                         </div>
+
+                        <!-- Modal for attaching file -->
+                        <div class="modal fade" id="attachFileModal" tabindex="-1" role="dialog" aria-labelledby="attachFileModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="attachFileModalLabel">Attach File</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post" action="{% url 'attach_file' price_list.id %}" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                                <label for="attachment">Choose File:</label>
+                                                <input type="file" name="attachment" id="attachment" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-outline-warning mt-3">Attach File</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="EmailModal">
+                            <div class="modal-dialog modal-xl">
+                              <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                                <div class="modal-header" style="background: rgb(32, 35, 37);">
+                                  <h5 class="m-3 text-uppercase" id="EmailModalLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
+                                  <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+                                      aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body" style="background: rgb(32, 35, 37);">
+                                  <div class="card p-3 m-3">
+                                    <form action="{% url 'email_pricelist' price_list.id %}" method="post" class="needs-validation"
+                                      id="share_to_email_form" autocomplete="off">
+                                      {% csrf_token %}
+                                      <div class="form-group">
+                                        <label for="emailIds" style="color: #000;">Email IDs</label>
+                                        <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+                                          placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                                      </div>
+                                      <div class="form-group mt-2">
+                                        <label for="item_unitname"  style="color: #000;">Message(optional)</label>
+                                        <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
+                                          rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                                      </div>
+                               
+                                  </div>
+                                  <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                                    <!-- <button type="submit">submit</button> -->
+                                    <input type="submit" id="share_with_email"
+                                      class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+                                  </div>
+                                </div>
+                              </form>
+                              </div>
+                            </div>
+                          </div>
                         <div class="modal fade" id="addCommentModal" tabindex="-1" role="dialog" aria-labelledby="addCommentModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -157,13 +215,9 @@
                                     
                                     {% if price_list.item_rate_type == 'Percentage' %}
                                         <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
-                                        <!-- <p><b>Details:</b> {{ price_list.item_rate_type }}</p>
-                                        <p><b>Percentage Type:</b> {{ price_list.percentage_type }}</p>
-                                        <p><b>Percentage Value:</b> {{ price_list.percentage_value }}%</p> -->
                                     {% elif price_list.item_rate_type == 'Each Item' %}
                                         <p><b>Details:</b> Each Item</p>
                                     {% endif %}
-                                    
                                     <p><b>Rounding:</b> {{ price_list.round_off }}</p>
                                     <p><b>Currency:</b> {{ price_list.currency }}</p>
                                 </div>
@@ -206,6 +260,7 @@
             
         </div>
     </div>
+
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
 <script src="https://kit.fontawesome.com/76ed4bac95.js" crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

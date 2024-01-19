@@ -70,6 +70,7 @@ class PriceList(models.Model):
     date = models.DateField(auto_now_add=True, null=True)
     STATUS_CHOICES = [('Active', 'Active'),('Inactive', 'Inactive'),]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
+    attachment = models.FileField(upload_to='price_list_attachment/', null=True, blank=True)
 
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE)
