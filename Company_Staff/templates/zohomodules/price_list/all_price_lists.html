@@ -52,9 +52,45 @@
                         <div class="col-md-6 d-flex justify-content-end h-100">
                             <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export</a>
                             <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import</a>
-                            <a href="whatsapp://send?text=Check out these price lists:" target="_blank" class="btn btn-outline-warning ms-1">WhatsApp</a>
-                            <a href="mailto:?subject=Price Lists&body=Check out these price lists:" target="_blank" class="btn btn-outline-warning ms-1">Email</a>
+                            <button id="shareWhatsapp" class="btn btn-outline-warning ms-1">WhatsApp</button>
+
+                            <a href="#" data-toggle="modal" data-target="#EmailModal" target="_blank" class="btn btn-outline-warning ms-1">Email</a>
                             <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="EmailModal">
+                        <div class="modal-dialog modal-xl">
+                          <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                            <div class="modal-header" style="background: rgb(32, 35, 37);">
+                              <h5 class="m-3 text-uppercase" id="EmailModalLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
+                              <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
+                                  aria-hidden="true">&times;</span></button>
+                            </div>
+                            <div class="modal-body" style="background: rgb(32, 35, 37);">
+                              <div class="card p-3 m-3">
+                                <form action="{% url 'email_all_price_lists' %}" method="post" class="needs-validation"
+                                  id="share_to_email_form" autocomplete="off">
+                                  {% csrf_token %}
+                                  <div class="form-group">
+                                    <label for="emailIds" style="color: #000;">Email IDs</label>
+                                    <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+                                      placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                                  </div>
+                                  <div class="form-group mt-2">
+                                    <label for="item_unitname"  style="color: #000;">Message(optional)</label>
+                                    <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
+                                      rows="4" placeholder="This message will be sent along with details."></textarea>
+                                  </div>
+                           
+                              </div>
+                              <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                                <!-- <button type="submit">submit</button> -->
+                                <input type="submit" id="share_with_email"
+                                  class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+                              </div>
+                            </div>
+                          </form>
+                          </div>
                         </div>
                     </div>
                     
@@ -120,16 +156,50 @@
                             </tbody>
                         </table>
                     </div>
-                </div><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+                </div>
             </div>
         </div>
     </div>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.7.5/dist/jspdf.plugin.autotable.js"></script>
+<script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // WhatsApp share function
+        $('#shareWhatsapp').click(function () {
+            var htmlFilePath = 'zohomodules/price_list/pdf_all_price_lists.html';
+
+            $.get(htmlFilePath, function (htmlContent) {
+                html2pdf(htmlContent, {
+                    margin: 10,
+                    filename: 'PriceLists.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).then(function (pdf) {
+                    var pdfBlob = pdf.output('blob');
+                    var pdfUrl = URL.createObjectURL(pdfBlob);
+
+                    var whatsappLink = 'whatsapp://send?text=Check out these price lists: ' + pdfUrl;
+
+                    window.location.href = whatsappLink;
+                });
+            });
+        });
+    });
+</script>
+
+
+
+
 
 <script>
     $(document).ready(function() {

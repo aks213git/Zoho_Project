@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Lists Invoice</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy6pZlF/R5G80TkoI1PQVlJn/1zI1CA6D" crossorigin="anonymous">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5A2M/7UnCJ4ZlpLl6I1k01UJw7PQak5Ly5FfWEIaxH6Zj3h" crossorigin="anonymous">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+
+        .invoice-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .invoice-table th, .invoice-table td {
+            text-align: center;
+        }
+
+        .invoice-footer {
+            margin-top: 20px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container mt-4">
+
+        <div class="invoice-header">
+            <h1 class="invoice-title mb-4">All Price Lists</h1>
+            <!-- Add any additional header information here -->
+        </div>
+
+        <table class="table table-bordered invoice-table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>DATE</th>
+                    <th>NAME</th>
+                    <th>DESCRIPTION</th>
+                    <th>TYPE</th>
+                    <th>ROUNDING</th>
+                    <th>STATUS</th>
+                    <th>DETAILS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for price_list in price_lists %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ price_list.date }}</td>
+                    <td>{{ price_list.name }}</td>
+                    <td>{{ price_list.description }}</td>
+                    <td>{{ price_list.type }}</td>
+                    <td>
+                        {% if price_list.item_rate_type == 'Percentage' %}
+                            {{ price_list.round_off }}
+                        {% elif price_list.item_rate_type == 'Each Item' %}
+                            Never Mind
+                        {% endif %}
+                    </td>
+                    <td>{{ price_list.get_status_display }}</td>
+                    <td>
+                        {% if price_list.item_rate_type == 'Percentage' %}
+                            {{ price_list.percentage_type }}
+                        {% elif price_list.item_rate_type == 'Each Item' %}
+                            Each Item
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="invoice-footer">
+            <!-- Add any additional footer information here -->
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy6pZlF/R5G80TkoI1PQVlJn/1zI1CA6D" crossorigin="anonymous"></script>
+
+</body>
+</html>

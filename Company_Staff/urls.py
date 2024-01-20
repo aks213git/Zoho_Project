@@ -34,6 +34,7 @@ urlpatterns = [
     path('email_pricelist/<int:price_list_id>/', views.email_pricelist, name='email_pricelist'),
     path('price_list_pdf/<int:price_list_id>/', views.price_list_pdf, name='price_list_pdf'),
     path('attach_file/<int:price_list_id>/', views.attach_file, name='attach_file'),
+    path('email_all_price_lists', views.email_all_price_lists, name='email_all_price_lists'),
   
     
 ]

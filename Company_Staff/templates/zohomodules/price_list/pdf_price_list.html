@@ -1,0 +1,150 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price List Details</title>
+</head>
+<body>
+    <h2>{{ price_list.name }}</h2>
+    <p>Price List Type: {{ price_list.type }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Standard Rate</th>
+                <th>Custom Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in price_list_item %}
+                <tr>
+                    <td>{{ item.item.item_name }}</td>
+                    <td>{{ item.standard_rate }}</td>
+                    <td>{{ item.custom_rate }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .dashed-line {
+            border-top: 1px dashed #000;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="row" id="div-to-print" style="background-color: #fffefe; height: auto; margin-left: 1px; margin-right: 1rem;">
+
+        <div class="row text-center">
+            <h2 style="color: #000000;"><br>{{price_list.name}}
+                <hr>
+            </h2>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Price List Type:</label></div>
+            <div class="col-6">
+                <p class="bold text-black" style="max-width: 15rem; word-wrap: break-word;">{{price_list.type}}</p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Details:</label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;">
+                    {% if price_list.item_rate_type == 'Percentage' %}
+                        <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                    {% elif price_list.item_rate_type == 'Each Item' %}
+                        <p><b>Details:</b> Each Item</p>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Rounding :</label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;">{{price_list.round_off}}</p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Currency :</label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;">{{price_list.currency}}</p>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-black" for="">Description :</label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;">{{price_list.description}}</p>
+            </div>
+        </div>
+
+        <div class="dashed-line"></div>
+
+        <h3>Items Table</h3>
+
+        <table class="table table-hover table-bordered" id="table1" style="border-color: #000000; color: rgb(0, 0, 0);">
+            <thead>
+                <tr>
+                    <th style="text-align: center;">Item Name</th>
+                    <th style="text-align: center;">Standard Rate</th>
+                    <th style="text-align: center;">Custom Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in price_list_item %}
+                    <tr style="color: black;">
+                        <td style="text-align: center;">{{ item.item.item_name }}</td>
+                        <td style="text-align: center;">{{ item.standard_rate }}</td>
+                        <td style="text-align: center;">{{ item.custom_rate }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-dark" for=""></label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;"></p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-dark" for=""></label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;"><br></p>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-5"><label class="text-dark" for=""></label></div>
+            <div class="col-6">
+                <p class="bold text-dark" style="max-width: 15rem; word-wrap: break-word;"></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

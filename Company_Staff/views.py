@@ -441,7 +441,6 @@ def edit_price_list(request, price_list_id):
     return render(request, 'zohomodules/price_list/edit_price_list.html', context)
 
 
-
 # display details of selected price list
 def price_list_details(request, price_list_id):
     if 'login_id' in request.session:
@@ -514,8 +513,6 @@ def price_list_details(request, price_list_id):
         }
         return render(request,'zohomodules/price_list/price_list_details.html',context)
     
-
-
 
 def delete_price_list(request, price_list_id):
     if 'login_id' in request.session:
@@ -634,8 +631,8 @@ def view_comment(request, price_list_id):
     
     if log_details.user_type == "Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
-        price_lists = PriceList.objects.filter(company=dash_details)
-        price_list_comments = PriceListComment.objects.filter(company=dash_details,price_list=price_lists)
+        price_lists = PriceList.objects.filter(company=dash_details,price_list_id=price_list_id)
+        price_list_comments = PriceListComment.objects.filter(company=dash_details)
         context = {
             'details': dash_details,
             'price_lists': price_lists,
@@ -645,8 +642,8 @@ def view_comment(request, price_list_id):
 
     if log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
-        price_lists = PriceList.objects.filter(company=dash_details.company)
-        price_list_comments = PriceListComment.objects.filter(company=dash_details.company,price_list_id=price_lists )
+        price_lists = PriceList.objects.filter(company=dash_details.company,price_list_id=price_list_id)
+        price_list_comments = PriceListComment.objects.filter(company=dash_details.company)
         context = {
             'details': dash_details,
             'price_lists': price_lists,
@@ -670,7 +667,7 @@ def email_pricelist(request, price_list_id):
                 'price_list_item': price_list_item,
             }
 
-            template_path = 'zohomodules/price_list/price_list_email_pdf.html'
+            template_path = 'zohomodules/price_list/pdf_price_list.html'
             template = get_template(template_path)
             html = template.render(context)
             result = BytesIO()
@@ -702,7 +699,7 @@ def price_list_pdf(request, price_list_id):
             'price_list_item': price_list_item,
         }
 
-        template_path = 'zohomodules/price_list/price_list_email_pdf.html'
+        template_path = 'zohomodules/price_list/pdf_price_list.html'
         template = get_template(template_path)
         html = template.render(context)
         result = BytesIO()
@@ -726,3 +723,243 @@ def attach_file(request, price_list_id):
         return redirect('price_list_details', price_list_id=price_list.id)
     return HttpResponse("Invalid request method.")
 
+
+# def email_all_price_lists(request):
+#     if 'login_id' in request.session:
+#         if request.session.has_key('login_id'):
+#             log_id = request.session['login_id']
+#         else:
+#             return redirect('/')
+
+#         log_details = LoginDetails.objects.get(id=log_id)
+#         if log_details.user_type == "Company":
+#             dash_details = CompanyDetails.objects.get(login_details=log_details)
+#             price_lists = PriceList.objects.filter(company=dash_details)
+#         elif log_details.user_type == "Staff":
+#             dash_details = StaffDetails.objects.get(login_details=log_details)
+#             price_lists = PriceList.objects.filter(company=dash_details.company)
+#         else:
+#             return HttpResponse("Unauthorized Access")
+
+#         if request.method == 'POST':
+#             emails_string = request.POST['email_ids']
+#             emails_list = [email.strip() for email in emails_string.split(',')]
+#             email_message = request.POST['email_message']
+
+#             for price_list in price_lists:
+#                 context = {
+#                     'price_list': price_list,
+#                 }
+
+#                 template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+#                 template = get_template(template_path)
+#                 html = template.render(context)
+#                 result = BytesIO()
+#                 pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+#                 pdf = result.getvalue()
+
+#                 filename = f'Price_List_Details_{price_list.name}.pdf'
+#                 subject = f"Price List Details: {price_list.name}"
+#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Price List Details. \n{email_message}\n\n--\nRegards,\n{price_list.name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+#                 email.attach(filename, pdf, "application/pdf")
+#                 email.send(fail_silently=False)
+
+#             msg = messages.success(request, 'Details have been shared via email successfully..!')
+#             return redirect('all_price_lists')
+
+#         context = {
+#             'details': dash_details,
+#             'price_lists': price_lists,
+#             'sort_option': 'all',
+#             'filter_option': 'all',
+#         }
+#         return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+#     else:
+#         return HttpResponse("Unauthorized Access")
+
+
+# def email_all_price_lists(request):
+#     if 'login_id' in request.session:
+#         if request.session.has_key('login_id'):
+#             log_id = request.session['login_id']
+#         else:
+#             return redirect('/')
+
+#         log_details = LoginDetails.objects.get(id=log_id)
+#         if log_details.user_type == "Company":
+#             dash_details = CompanyDetails.objects.get(login_details=log_details)
+#             price_lists = PriceList.objects.filter(company=dash_details)
+#             if request.method == 'POST':
+#                 emails_string = request.POST['email_ids']
+#                 emails_list = [email.strip() for email in emails_string.split(',')]
+#                 email_message = request.POST['email_message']
+
+#                 # Combine all price lists into a single PDF
+#                 combined_pdf = BytesIO()
+#                 for price_list in price_lists:
+#                     context = {'price_list': price_list}
+#                     template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+#                     template = get_template(template_path)
+#                     html = template.render(context)
+#                     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), combined_pdf)
+
+#                 combined_pdf = combined_pdf.getvalue()
+
+#                 # Send a single email with the combined PDF
+#                 filename = 'All_Price_Lists.pdf'
+#                 subject = 'Combined Price List Details'
+#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Combined Price List Details. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+#                 email.attach(filename, combined_pdf, "application/pdf")
+#                 email.send(fail_silently=False)
+
+#                 msg = messages.success(request, 'Details have been shared via email successfully..!')
+#                 return redirect('all_price_lists')
+
+#             context = {
+#                 'details': dash_details,
+#                 'price_lists': price_lists,
+#                 'sort_option': 'all',
+#                 'filter_option': 'all',
+#             }
+#             return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+
+#         elif log_details.user_type == "Staff":
+#             dash_details = StaffDetails.objects.get(login_details=log_details)
+#             price_lists = PriceList.objects.filter(company=dash_details.company)
+#             if request.method == 'POST':
+#                 emails_string = request.POST['email_ids']
+#                 emails_list = [email.strip() for email in emails_string.split(',')]
+#                 email_message = request.POST['email_message']
+
+#                 # Combine all price lists into a single PDF
+#                 combined_pdf = BytesIO()
+#                 for price_list in price_lists:
+#                     context = {'price_list': price_list}
+#                     template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+#                     template = get_template(template_path)
+#                     html = template.render(context)
+#                     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), combined_pdf)
+
+#                 combined_pdf = combined_pdf.getvalue()
+
+#                 # Send a single email with the combined PDF
+#                 filename = 'All_Price_Lists.pdf'
+#                 subject = 'Combined Price List Details'
+#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Combined Price List Details. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+#                 email.attach(filename, combined_pdf, "application/pdf")
+#                 email.send(fail_silently=False)
+
+#                 msg = messages.success(request, 'Details have been shared via email successfully..!')
+#                 return redirect('all_price_lists')
+
+#             context = {
+#                 'details': dash_details,
+#                 'price_lists': price_lists,
+#                 'sort_option': 'all',
+#                 'filter_option': 'all',
+#             }
+#             return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+
+#         else:
+#             return HttpResponse("Unauthorized Access")
+
+#     else:
+#         return HttpResponse("Unauthorized Access")
+    
+    
+def email_all_price_lists(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+        else:
+            return redirect('/')
+
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == "Company":
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            price_lists = PriceList.objects.filter(company=dash_details)
+
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+
+                # Generate PDF content from HTML template
+                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+                context = {'price_lists': price_lists}
+                html_content = get_template(template_path).render(context)
+
+                # Create BytesIO object and convert HTML to PDF
+                pdf_file = BytesIO()
+                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
+
+                # Move the BytesIO pointer to the beginning
+                pdf_file.seek(0)
+
+                # Send email with PDF attachment
+                filename = 'All_Price_Lists.pdf'
+                subject = 'All_Price_Lists'
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf_file.read(), "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Details have been shared via email successfully..!')
+                return redirect('all_price_lists')
+
+            context = {
+                'details': dash_details,
+                'price_lists': price_lists,
+                'sort_option': 'all',
+                'filter_option': 'all',
+            }
+            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+
+        elif log_details.user_type == "Staff":
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            price_lists = PriceList.objects.filter(company=dash_details.company)
+
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+
+                # Generate PDF content from HTML template
+                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+                context = {'price_lists': price_lists}
+                html_content = get_template(template_path).render(context)
+
+                # Create BytesIO object and convert HTML to PDF
+                pdf_file = BytesIO()
+                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
+
+                # Move the BytesIO pointer to the beginning
+                pdf_file.seek(0)
+
+                # Send email with PDF attachment
+                filename = 'All_Price_Lists.pdf'
+                subject = 'All_Price_Lists'
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf_file.read(), "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Details have been shared via email successfully..!')
+                return redirect('all_price_lists')
+
+            context = {
+                'details': dash_details,
+                'price_lists': price_lists,
+                'sort_option': 'all',
+                'filter_option': 'all',
+            }
+            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+        else:
+            return HttpResponse("Unauthorized Access")
+
+    else:
+        return HttpResponse("Unauthorized Access")
+  
+    
+    
+    
+    
+    

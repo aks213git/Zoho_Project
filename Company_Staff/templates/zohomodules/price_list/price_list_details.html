@@ -47,11 +47,7 @@
                     <div class="col-md-8">
                         {% if price_lists %}
                         <h2 class="text-light mb-4">{{ price_list.name }}</h2>
-                        {% if messages %}
-                                {% for message in messages %}
-                                    <label id="messageLabel" for="" class="text-center mb-3" style="background-color: rgb(255, 0, 0,0.5); width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
-                                {% endfor %}
-					        {% endif %}
+                        
                         <div class="d-flex justify-content-end">
                             <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o " aria-hidden="true"></i></a>
                             <div class="dropdown ms-2">
@@ -98,6 +94,13 @@
                                 {% endif %}
                             </button>
                         </div>
+                        
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                            {% endfor %}
+                        {% endif %}
 
                         <!-- Modal for attaching file -->
                         <div class="modal fade" id="attachFileModal" tabindex="-1" role="dialog" aria-labelledby="attachFileModalLabel" aria-hidden="true">
@@ -143,12 +146,11 @@
                                       <div class="form-group mt-2">
                                         <label for="item_unitname"  style="color: #000;">Message(optional)</label>
                                         <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
-                                          rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                                          rows="4" placeholder="This message will be sent along with details."></textarea>
                                       </div>
                                
                                   </div>
                                   <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
-                                    <!-- <button type="submit">submit</button> -->
                                     <input type="submit" id="share_with_email"
                                       class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
                                   </div>
