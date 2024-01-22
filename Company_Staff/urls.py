@@ -24,17 +24,24 @@ urlpatterns = [
     
     #------------price lists-------------------
     path('all_price_lists', views.all_price_lists, name='all_price_lists'),
+    
     path('create_price_list/', views.create_price_list, name='create_price_list'),
+    
     path('price_list_details/<int:price_list_id>/', views.price_list_details, name='price_list_details'),
     path('edit_price_list/<int:price_list_id>/', views.edit_price_list, name='edit_price_list'),
     path('delete_price_list/<int:price_list_id>/', views.delete_price_list, name='delete_price_list'),
     path('toggle_price_list_status/<int:price_list_id>/', views.toggle_price_list_status, name='toggle_price_list_status'),
+    
     path('add_comment/<int:price_list_id>/', views.add_comment, name='add_comment'),
-    path('view_comment/<int:price_list_id>/', views.view_comment, name='view_comment'),
+    path('edit_comment/<int:comment_id>/<int:price_list_id>/', views.edit_comment, name='edit_comment'),
+    path('delete_comment/<int:comment_id>/<int:price_list_id>/', views.delete_comment, name='delete_comment'),
+    
     path('email_pricelist/<int:price_list_id>/', views.email_pricelist, name='email_pricelist'),
     path('price_list_pdf/<int:price_list_id>/', views.price_list_pdf, name='price_list_pdf'),
-    path('attach_file/<int:price_list_id>/', views.attach_file, name='attach_file'),
     path('email_all_price_lists', views.email_all_price_lists, name='email_all_price_lists'),
+    
+    path('attach_file/<int:price_list_id>/', views.attach_file, name='attach_file'),
   
+    # path('view_comment/<int:price_list_id>/', views.view_comment, name='view_comment'), 
     
 ]

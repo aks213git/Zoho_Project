@@ -52,9 +52,6 @@
                         <div class="col-md-6 d-flex justify-content-end h-100">
                             <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export</a>
                             <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import</a>
-                            <button id="shareWhatsapp" class="btn btn-outline-warning ms-1">WhatsApp</button>
-
-                            <a href="#" data-toggle="modal" data-target="#EmailModal" target="_blank" class="btn btn-outline-warning ms-1">Email</a>
                             <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
                         </div>
                     </div>
@@ -73,8 +70,8 @@
                                   {% csrf_token %}
                                   <div class="form-group">
                                     <label for="emailIds" style="color: #000;">Email IDs</label>
-                                    <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
-                                      placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                                    <input class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
+                                      placeholder="Multiple emails can be added by separating with a comma(,)." required >
                                   </div>
                                   <div class="form-group mt-2">
                                     <label for="item_unitname"  style="color: #000;">Message(optional)</label>

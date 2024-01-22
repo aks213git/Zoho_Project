@@ -305,8 +305,13 @@ def create_price_list(request):
         items = Items.objects.filter(company=dash_details.company,activation_tag='active')
 
         if request.method == 'POST':
+            name = request.POST['name']
+            if PriceList.objects.filter(name=name, company=dash_details.company).exists():
+                messages.error(request, f"A Price List with the name '{name}' already exists.")
+                return redirect('create_price_list')
+            
             new_price_list = PriceList.objects.create(
-                name=request.POST['name'],
+                name=name,
                 type=request.POST['type'],
                 item_rate_type=request.POST['item_rate_type'],
                 description=request.POST['description'],
@@ -318,8 +323,16 @@ def create_price_list(request):
                 login_details=log_details
             )
             
+            PriceListTransactionHistory.objects.create(
+                company=dash_details.company,
+                login_details=log_details,
+                price_list=new_price_list,
+                action='Created',
+            )
+            
             custom_rates = request.POST.getlist('custom_rate')
             for item, custom_rate in zip(items, custom_rates):
+                custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
                 standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
                 PriceListItem.objects.create(
                     company=dash_details.company,
@@ -397,48 +410,43 @@ def edit_price_list(request, price_list_id):
         price_lists = PriceList.objects.filter(company=dash_details.company)
         allmodules = ZohoModules.objects.get(company=dash_details.company, status='New')
         price_list = get_object_or_404(PriceList, id=price_list_id)
+        items = PriceListItem.objects.filter(price_list=price_list)
+        
+        if request.method == 'POST':
+            price_list.name = request.POST['name']
+            price_list.type = request.POST['type']
+            price_list.item_rate_type = request.POST['item_rate_type']
+            price_list.description = request.POST['description']
+            price_list.percentage_type = request.POST['percentage_type']
+            price_list.percentage_value = request.POST['percentage_value']
+            price_list.round_off = request.POST['round_off']
+            price_list.currency = request.POST['currency']
+            price_list.save()
+            PriceListTransactionHistory.objects.create(
+                    company=dash_details.company,
+                    login_details=log_details,
+                    price_list=price_list,
+                    action='Edited',
+                )
+            
+            # edit PriceListItem
+            custom_rate = request.POST.getlist('custom_rate')
+            for item, custom_rate in zip(items, custom_rate):
+                    standard_rate = item.item.selling_price if price_list.type == 'Sales' else item.item.purchase_price
+                    item.standard_rate = standard_rate
+                    item.custom_rate = custom_rate
+                    item.save()
+            
+            return redirect('all_price_lists')
+
         context = {
             'details': dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
             'price_list': price_list,
+            'items':items,
         }
         return render(request, 'zohomodules/price_list/edit_price_list.html', context)
-    price_list = get_object_or_404(PriceList, id=price_list_id)
-    if request.method == 'POST':
-        price_list.name = request.POST['name']
-        price_list.type = request.POST['type']
-        price_list.item_rate_type = request.POST['item_rate_type']
-        price_list.description = request.POST['description']
-        price_list.percentage_type = request.POST['percentage_type']
-        price_list.percentage_value = request.POST['percentage_value']
-        price_list.round_off = request.POST['round_off']
-        price_list.currency = request.POST['currency']
-        price_list.save()
-        PriceListTransactionHistory.objects.create(
-                company=dash_details,
-                login_details=log_details,
-                price_list=price_list,
-                action='Edited',
-            )
-        
-        # edit PriceListItem
-        custom_rate = request.POST.getlist('custom_rate')
-        items = PriceListItem.objects.filter(price_list=price_list)
-        for item, custom_rate in zip(items, custom_rate):
-                standard_rate = item.item.selling_price if price_list.type == 'Sales' else item.item.purchase_price
-                item.standard_rate = standard_rate
-                item.custom_rate = custom_rate
-                item.save()
-        
-        return redirect('all_price_lists')
-
-    context = {
-        'details': dash_details,
-        'price_list': price_list,
-        'allmodules': allmodules,
-    }
-    return render(request, 'zohomodules/price_list/edit_price_list.html', context)
 
 
 # display details of selected price list
@@ -454,6 +462,7 @@ def price_list_details(request, price_list_id):
         dash_details = CompanyDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details)
         price_list = get_object_or_404(PriceList, id=price_list_id)
+        comments = PriceListComment.objects.filter(price_list=price_list)
         allmodules= ZohoModules.objects.get(company=dash_details,status='New')
         sort_option = request.GET.get('sort', 'all')  
         filter_option = request.GET.get('filter', 'all')
@@ -475,6 +484,7 @@ def price_list_details(request, price_list_id):
             'allmodules': allmodules,
             'price_lists': price_lists,
             'price_list': price_list,
+            'comments': comments,
             'sort_option': sort_option,
             'filter_option': filter_option,
             'latest_transaction': latest_transaction,
@@ -487,6 +497,7 @@ def price_list_details(request, price_list_id):
         dash_details = StaffDetails.objects.get(login_details=log_details)
         price_lists = PriceList.objects.filter(company=dash_details.company)
         price_list = get_object_or_404(PriceList, id=price_list_id)
+        comments = PriceListComment.objects.filter(price_list=price_list)
         allmodules= ZohoModules.objects.get(company=dash_details.company,status='New')
         sort_option = request.GET.get('sort', 'all')  
         filter_option = request.GET.get('filter', 'all')
@@ -500,11 +511,12 @@ def price_list_details(request, price_list_id):
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
         transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
-        items = Items.objects.filter(company=dash_details.company, price_list=price_list)
+        items = PriceListItem.objects.filter(company=dash_details.company, price_list=price_list)
         context={
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
+            'comments': comments,
             'price_list': price_list,
             'sort_option': sort_option,
             'filter_option': filter_option,
@@ -611,7 +623,7 @@ def add_comment(request, price_list_id):
         dash_details = StaffDetails.objects.get(login_details=log_details)
         price_list = get_object_or_404(PriceList, id=price_list_id, company=dash_details.company)
         if request.method == 'POST':
-            comment = request.POST.get('comment')
+            comment = request.POST.get('comment_text')
             PriceListComment.objects.create(
                 company=dash_details.company,
                 login_details=log_details,
@@ -619,39 +631,56 @@ def add_comment(request, price_list_id):
                 comment=comment
             )
         return redirect('price_list_details', price_list_id=price_list_id)
+
+
+def edit_comment(request, comment_id, price_list_id):
+    comment = get_object_or_404(PriceListComment, id=comment_id)
+    if request.method == 'POST':
+        edited_comment = request.POST.get('edited_comment')
+        comment.comment = edited_comment
+        comment.save()
+    return redirect('price_list_details', price_list_id=price_list_id)
+
+def delete_comment(request, comment_id, price_list_id):
+    comment = get_object_or_404(PriceListComment, id=comment_id)
+    comment.delete()
+    return redirect('price_list_details', price_list_id=price_list_id)
+
    
 
-def view_comment(request, price_list_id):
-    if 'login_id' in request.session:
-        if request.session.has_key('login_id'):
-            log_id = request.session['login_id']
-        else:
-            return redirect('/')
-    log_details = LoginDetails.objects.get(id=log_id)
+# def view_comment(request, price_list_id):
+#     if 'login_id' in request.session:
+#         if request.session.has_key('login_id'):
+#             log_id = request.session['login_id']
+#         else:
+#             return redirect('/')
+#     log_details = LoginDetails.objects.get(id=log_id)
     
-    if log_details.user_type == "Company":
-        dash_details = CompanyDetails.objects.get(login_details=log_details)
-        price_lists = PriceList.objects.filter(company=dash_details,price_list_id=price_list_id)
-        price_list_comments = PriceListComment.objects.filter(company=dash_details)
-        context = {
-            'details': dash_details,
-            'price_lists': price_lists,
-            'price_list_comments': price_list_comments,
-        }
-        return render(request, 'zohomodules/price_list/price_list_details.html', context)
+#     if log_details.user_type == "Company":
+#         dash_details = CompanyDetails.objects.get(login_details=log_details)
+#         price_lists = PriceList.objects.filter(company=dash_details)
+#         price_list = get_object_or_404(PriceList, id=price_list_id)
+#         comments = PriceListComment.objects.filter(price_list=price_list)
+#         context = {
+#             'details': dash_details,
+#             'price_lists': price_lists,
+#             'price_list': price_list,
+#             'comments': comments,
+#         }
+#         return render(request, 'zohomodules/price_list/price_list_details.html', context)
 
-    if log_details.user_type == "Staff":
-        dash_details = StaffDetails.objects.get(login_details=log_details)
-        price_lists = PriceList.objects.filter(company=dash_details.company,price_list_id=price_list_id)
-        price_list_comments = PriceListComment.objects.filter(company=dash_details.company)
-        context = {
-            'details': dash_details,
-            'price_lists': price_lists,
-            'price_list_comments': price_list_comments,
-        }
-        return render(request, 'zohomodules/price_list/price_list_details.html', context)
+#     if log_details.user_type == "Staff":
+#         dash_details = StaffDetails.objects.get(login_details=log_details)
+#         price_list = get_object_or_404(PriceList, id=price_list_id, company=dash_details.company)
+#         comments = PriceListComment.objects.filter(price_list=price_list)
+#         context = {
+#             'details': dash_details,
+#             'price_list': price_list,
+#             'comments': comments,
+#         }
+#         return render(request, 'zohomodules/price_list/price_list_details.html', context)
 
-
+# email pricelist details(overview)
 def email_pricelist(request, price_list_id):
     try:
         price_list = PriceList.objects.get(id=price_list_id)
@@ -688,7 +717,103 @@ def email_pricelist(request, price_list_id):
         messages.error(request, f'{e}')
         return redirect('all_price_lists')  
 
+# email listout page
+def email_all_price_lists(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+        else:
+            return redirect('/')
 
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == "Company":
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            price_lists = PriceList.objects.filter(company=dash_details)
+
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+
+                # Generate pdf content from HTML template
+                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+                context = {
+                    'price_lists': price_lists,
+                    'dash_details':dash_details
+                    }
+                html_content = get_template(template_path).render(context)
+
+                # Create BytesIO object and convert HTML to pdf
+                pdf_file = BytesIO()
+                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
+
+                # Move the BytesIO pointer to the beginning
+                pdf_file.seek(0)
+
+                # Send email with pdf attachment
+                filename = 'All_Price_Lists.pdf'
+                subject = 'All_Price_Lists'
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf_file.read(), "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Details have been shared via email successfully..!')
+                return redirect('all_price_lists')
+
+            context = {
+                'dash_details': dash_details,
+                'price_lists': price_lists,
+                'sort_option': 'all',
+                'filter_option': 'all',
+            }
+            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+
+        elif log_details.user_type == "Staff":
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            price_lists = PriceList.objects.filter(company=dash_details.company)
+
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+
+                # Generate pdf content from HTML template
+                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
+                context = {
+                    'price_lists': price_lists,
+                    'dash_details':dash_details
+                    }
+                html_content = get_template(template_path).render(context)
+
+                # Create BytesIO object and convert HTML to pdf
+                pdf_file = BytesIO()
+                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
+                pdf_file.seek(0)
+
+                # Send email with pdf attachment
+                filename = 'All_Price_Lists.pdf'
+                subject = 'All_Price_Lists'
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf_file.read(), "application/pdf")
+                email.send(fail_silently=False)
+
+                msg = messages.success(request, 'Details have been shared via email successfully..!')
+                return redirect('all_price_lists')
+
+            context = {
+                'dash_details': dash_details,
+                'price_lists': price_lists,
+                'sort_option': 'all',
+                'filter_option': 'all',
+            }
+            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
+        else:
+            return HttpResponse("Unauthorized Access")
+
+    else:
+        return HttpResponse("Unauthorized Access")
+  
+# dwnld pdf
 def price_list_pdf(request, price_list_id):
     try:
         price_list = PriceList.objects.get(id=price_list_id)
@@ -714,6 +839,7 @@ def price_list_pdf(request, price_list_id):
         messages.error(request, f'{e}')
         return redirect('all_price_lists')
 
+# upload and download attachment
 def attach_file(request, price_list_id):
     price_list = PriceList.objects.get(pk=price_list_id)
     if request.method == 'POST':
@@ -724,240 +850,6 @@ def attach_file(request, price_list_id):
     return HttpResponse("Invalid request method.")
 
 
-# def email_all_price_lists(request):
-#     if 'login_id' in request.session:
-#         if request.session.has_key('login_id'):
-#             log_id = request.session['login_id']
-#         else:
-#             return redirect('/')
-
-#         log_details = LoginDetails.objects.get(id=log_id)
-#         if log_details.user_type == "Company":
-#             dash_details = CompanyDetails.objects.get(login_details=log_details)
-#             price_lists = PriceList.objects.filter(company=dash_details)
-#         elif log_details.user_type == "Staff":
-#             dash_details = StaffDetails.objects.get(login_details=log_details)
-#             price_lists = PriceList.objects.filter(company=dash_details.company)
-#         else:
-#             return HttpResponse("Unauthorized Access")
-
-#         if request.method == 'POST':
-#             emails_string = request.POST['email_ids']
-#             emails_list = [email.strip() for email in emails_string.split(',')]
-#             email_message = request.POST['email_message']
-
-#             for price_list in price_lists:
-#                 context = {
-#                     'price_list': price_list,
-#                 }
-
-#                 template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
-#                 template = get_template(template_path)
-#                 html = template.render(context)
-#                 result = BytesIO()
-#                 pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-#                 pdf = result.getvalue()
-
-#                 filename = f'Price_List_Details_{price_list.name}.pdf'
-#                 subject = f"Price List Details: {price_list.name}"
-#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Price List Details. \n{email_message}\n\n--\nRegards,\n{price_list.name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
-#                 email.attach(filename, pdf, "application/pdf")
-#                 email.send(fail_silently=False)
-
-#             msg = messages.success(request, 'Details have been shared via email successfully..!')
-#             return redirect('all_price_lists')
-
-#         context = {
-#             'details': dash_details,
-#             'price_lists': price_lists,
-#             'sort_option': 'all',
-#             'filter_option': 'all',
-#         }
-#         return render(request, 'zohomodules/price_list/all_price_lists.html', context)
-#     else:
-#         return HttpResponse("Unauthorized Access")
-
-
-# def email_all_price_lists(request):
-#     if 'login_id' in request.session:
-#         if request.session.has_key('login_id'):
-#             log_id = request.session['login_id']
-#         else:
-#             return redirect('/')
-
-#         log_details = LoginDetails.objects.get(id=log_id)
-#         if log_details.user_type == "Company":
-#             dash_details = CompanyDetails.objects.get(login_details=log_details)
-#             price_lists = PriceList.objects.filter(company=dash_details)
-#             if request.method == 'POST':
-#                 emails_string = request.POST['email_ids']
-#                 emails_list = [email.strip() for email in emails_string.split(',')]
-#                 email_message = request.POST['email_message']
-
-#                 # Combine all price lists into a single PDF
-#                 combined_pdf = BytesIO()
-#                 for price_list in price_lists:
-#                     context = {'price_list': price_list}
-#                     template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
-#                     template = get_template(template_path)
-#                     html = template.render(context)
-#                     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), combined_pdf)
-
-#                 combined_pdf = combined_pdf.getvalue()
-
-#                 # Send a single email with the combined PDF
-#                 filename = 'All_Price_Lists.pdf'
-#                 subject = 'Combined Price List Details'
-#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Combined Price List Details. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
-#                 email.attach(filename, combined_pdf, "application/pdf")
-#                 email.send(fail_silently=False)
-
-#                 msg = messages.success(request, 'Details have been shared via email successfully..!')
-#                 return redirect('all_price_lists')
-
-#             context = {
-#                 'details': dash_details,
-#                 'price_lists': price_lists,
-#                 'sort_option': 'all',
-#                 'filter_option': 'all',
-#             }
-#             return render(request, 'zohomodules/price_list/all_price_lists.html', context)
-
-#         elif log_details.user_type == "Staff":
-#             dash_details = StaffDetails.objects.get(login_details=log_details)
-#             price_lists = PriceList.objects.filter(company=dash_details.company)
-#             if request.method == 'POST':
-#                 emails_string = request.POST['email_ids']
-#                 emails_list = [email.strip() for email in emails_string.split(',')]
-#                 email_message = request.POST['email_message']
-
-#                 # Combine all price lists into a single PDF
-#                 combined_pdf = BytesIO()
-#                 for price_list in price_lists:
-#                     context = {'price_list': price_list}
-#                     template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
-#                     template = get_template(template_path)
-#                     html = template.render(context)
-#                     pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), combined_pdf)
-
-#                 combined_pdf = combined_pdf.getvalue()
-
-#                 # Send a single email with the combined PDF
-#                 filename = 'All_Price_Lists.pdf'
-#                 subject = 'Combined Price List Details'
-#                 email = EmailMessage(subject, f"Hi,\nPlease find the attached Combined Price List Details. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
-#                 email.attach(filename, combined_pdf, "application/pdf")
-#                 email.send(fail_silently=False)
-
-#                 msg = messages.success(request, 'Details have been shared via email successfully..!')
-#                 return redirect('all_price_lists')
-
-#             context = {
-#                 'details': dash_details,
-#                 'price_lists': price_lists,
-#                 'sort_option': 'all',
-#                 'filter_option': 'all',
-#             }
-#             return render(request, 'zohomodules/price_list/all_price_lists.html', context)
-
-#         else:
-#             return HttpResponse("Unauthorized Access")
-
-#     else:
-#         return HttpResponse("Unauthorized Access")
-    
-    
-def email_all_price_lists(request):
-    if 'login_id' in request.session:
-        if request.session.has_key('login_id'):
-            log_id = request.session['login_id']
-        else:
-            return redirect('/')
-
-        log_details = LoginDetails.objects.get(id=log_id)
-        if log_details.user_type == "Company":
-            dash_details = CompanyDetails.objects.get(login_details=log_details)
-            price_lists = PriceList.objects.filter(company=dash_details)
-
-            if request.method == 'POST':
-                emails_string = request.POST['email_ids']
-                emails_list = [email.strip() for email in emails_string.split(',')]
-                email_message = request.POST['email_message']
-
-                # Generate PDF content from HTML template
-                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
-                context = {'price_lists': price_lists}
-                html_content = get_template(template_path).render(context)
-
-                # Create BytesIO object and convert HTML to PDF
-                pdf_file = BytesIO()
-                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
-
-                # Move the BytesIO pointer to the beginning
-                pdf_file.seek(0)
-
-                # Send email with PDF attachment
-                filename = 'All_Price_Lists.pdf'
-                subject = 'All_Price_Lists'
-                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
-                email.attach(filename, pdf_file.read(), "application/pdf")
-                email.send(fail_silently=False)
-
-                msg = messages.success(request, 'Details have been shared via email successfully..!')
-                return redirect('all_price_lists')
-
-            context = {
-                'details': dash_details,
-                'price_lists': price_lists,
-                'sort_option': 'all',
-                'filter_option': 'all',
-            }
-            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
-
-        elif log_details.user_type == "Staff":
-            dash_details = StaffDetails.objects.get(login_details=log_details)
-            price_lists = PriceList.objects.filter(company=dash_details.company)
-
-            if request.method == 'POST':
-                emails_string = request.POST['email_ids']
-                emails_list = [email.strip() for email in emails_string.split(',')]
-                email_message = request.POST['email_message']
-
-                # Generate PDF content from HTML template
-                template_path = 'zohomodules/price_list/pdf_all_price_lists.html'
-                context = {'price_lists': price_lists}
-                html_content = get_template(template_path).render(context)
-
-                # Create BytesIO object and convert HTML to PDF
-                pdf_file = BytesIO()
-                pisa.pisaDocument(BytesIO(html_content.encode("UTF-8")), pdf_file)
-
-                # Move the BytesIO pointer to the beginning
-                pdf_file.seek(0)
-
-                # Send email with PDF attachment
-                filename = 'All_Price_Lists.pdf'
-                subject = 'All_Price_Lists'
-                email = EmailMessage(subject, f"Hi,\nPlease find the attached Price Lists. \n{email_message}\n\n--\nRegards,\n{dash_details.company_name}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
-                email.attach(filename, pdf_file.read(), "application/pdf")
-                email.send(fail_silently=False)
-
-                msg = messages.success(request, 'Details have been shared via email successfully..!')
-                return redirect('all_price_lists')
-
-            context = {
-                'details': dash_details,
-                'price_lists': price_lists,
-                'sort_option': 'all',
-                'filter_option': 'all',
-            }
-            return render(request, 'zohomodules/price_list/all_price_lists.html', context)
-        else:
-            return HttpResponse("Unauthorized Access")
-
-    else:
-        return HttpResponse("Unauthorized Access")
-  
     
     
     

@@ -111,14 +111,14 @@
                         <div id="currency_field" style="display: none;">
                             <div class="form-group row">
                                 <label for="currency" class="col-sm-2 col-form-label text-white">Currency:</label>
-                                <div class="col-sm-10">
+                                <div class="col-md-10">
                                     <select name="currency" class="form-control-sm">
                                         <option value="Indian Rupee">Indian Rupee</option>
                                     </select>
                                 </div>
                             </div>
-                            <h2 class="text-light">Customize Item Rates in Bulk</h2>
-                            <table class="table table-bordered">
+                            <h2 class="text-light mt-3 align-center">Customize Item Rates in Bulk</h2>
+                            <table class="table table-bordered border-warning text-light">
                                 <thead>
                                     <tr>
                                         <th>Item Details</th>
@@ -126,30 +126,6 @@
                                         <th>Custom Rate (INR)</th>
                                     </tr>
                                 </thead>
-                                <!-- <tbody>
-                                    {% for item in items %}
-                                    <tr>
-                                        <td>{{ item.item_name }}</td>
-                                        <td>{{ item.selling_price }}</td>
-                                        ------------------------ 
-                                        <td id="standard-rate-{{ item.id }}" data-type="{{ item.item_type }}">
-                                            {% if item.item_type == 'Sales' %}
-                                                Sales: {{ item.selling_price }}
-                                            {% elif item.item_type == 'Purchase' %}
-                                                Purchase: {{ item.purchase_price }}
-                                            {% else %}
-                                                Unknown Type
-                                            {% endif %}
-                                        </td>
-                                         -------------------------------------------------------
-                                        
-                                        <td>
-                                            <input type="number" name="custom_rate"
-                                                class="form-control-sm custom-rate-input">
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody> -->
                                 <tbody>
                                     {% for item in items %}
                                     <tr>
