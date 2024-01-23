@@ -6,26 +6,20 @@
     <div class="body-wrapper">
         <div class="container-fluid ">
             <div> 
-                <div class="table-responsive mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
+                <div class=" mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
                     <h1 class="text-light">View Price Lists</h1>
                     <br>
                     {% if messages %}
-                        {% for message in messages %}
-                            <label id="messageLabel" for="" class="text-center mb-3" style="background-color: rgb(255, 0, 0,0.5); width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
-                        {% endfor %}
-                    {% endif %}
+                            {% for message in messages %}
+                                <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                            {% endfor %}
+                        {% endif %}
 
                     <div class="row  h-100 ">
                         <div class="col-md-4">
                             <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
                         </div>
                         <div class="col-md-1">
-                            <!-- <select id="status-select" class="form-control border border-warning select2">
-                                <option value="all" data-icon="fa fa-filter">&#xf0b0; Filter</option>
-                                <option value="all">All</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select> -->
                             <div class="input-group-append h-100" >
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa fa-filter"></i> 
@@ -50,8 +44,15 @@
                             </div>
                         </div>
                         <div class="col-md-6 d-flex justify-content-end h-100">
-                            <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export</a>
-                            <a href="" target="_blank" class="btn btn-outline-warning ms-1"><i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import</a>
+                            <a href="#" id="exportBtn" class="btn btn-outline-warning ms-1">
+                                <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
+                            </a>
+                            
+                            
+                            <a href="#" id="importBtn" class="btn btn-outline-warning ms-1">
+                                <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                            </a>
+                            
                             <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
                         </div>
                     </div>
@@ -106,7 +107,6 @@
                                     <th scope="col"><b>ROUNDING</b></th>
                                     <th scope="col"><b>STATUS</b></th>
                                     <th scope="col"><b>DETAILS</b></th>
-                                    <th scope="col"><b>ACTION</b></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,11 +143,6 @@
                                             Each Item
                                         {% endif %}
                                     </td>
-                                    <td style="text-align: center;">
-                                        <a href="{% url 'delete_price_list' price_list.id %}">
-                                            <i class="fa fa-trash text-warning" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -168,9 +163,83 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.7.5/dist/jspdf.plugin.autotable.js"></script>
 <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
 
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+<script>
+    document.getElementById('importBtn').addEventListener('click', function() {
+        // Simulate input file click
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel';
+        input.addEventListener('change', handleFileSelect);
+        input.click();
+    });
+
+    
+        function handleFileSelect(event) {
+            var file = event.target.files[0];
+    
+            if (file) {
+                Papa.parse(file, {
+                    header: true,  // Assuming the first row contains headers
+                    complete: function(results) {
+                        // `results.data` contains parsed data, handle it accordingly
+                        console.log(results.data);
+    
+                        // Get the table body
+                        var tableBody = document.getElementById('table').getElementsByTagName('tbody')[0];
+    
+                        // Iterate through results.data and add rows to the table
+                        results.data.forEach(function(row) {
+                            // Create a new row
+                            var newRow = tableBody.insertRow(tableBody.rows.length);
+    
+                            // Populate cells with data
+                            newRow.insertCell(0).textContent = row['#'];
+                            newRow.insertCell(1).textContent = row['DATE'];
+                            newRow.insertCell(2).textContent = row['NAME']; 
+                            newRow.insertCell(3).textContent = row['DESCRIPTION'];
+                            newRow.insertCell(4).textContent = row['TYPE'];
+                            newRow.insertCell(5).textContent = row['ROUNDING'];
+                            newRow.insertCell(6).textContent = row['STATUS'];
+                            newRow.insertCell(7).textContent = row['DETAILS']; 
+                            // Add more cells based on your table structure
+                        });
+                    }
+                });
+            }
+        }
+
+    
+
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+
+<script>
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        
+        var table = document.getElementById('table');
+        var ws = XLSX.utils.table_to_sheet(table);
+
+        
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'PriceLists');
+
+        
+        var fileName = 'PriceLists.xlsx';
+        XLSX.writeFile(wb, fileName);
+    });
+</script>
+
+
+
+
 <script>
     $(document).ready(function () {
-        // WhatsApp share function
         $('#shareWhatsapp').click(function () {
             var htmlFilePath = 'zohomodules/price_list/pdf_all_price_lists.html';
 

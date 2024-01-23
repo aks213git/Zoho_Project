@@ -633,13 +633,10 @@ def add_comment(request, price_list_id):
         return redirect('price_list_details', price_list_id=price_list_id)
 
 
-def edit_comment(request, comment_id, price_list_id):
-    comment = get_object_or_404(PriceListComment, id=comment_id)
-    if request.method == 'POST':
-        edited_comment = request.POST.get('edited_comment')
-        comment.comment = edited_comment
-        comment.save()
-    return redirect('price_list_details', price_list_id=price_list_id)
+
+
+
+
 
 def delete_comment(request, comment_id, price_list_id):
     comment = get_object_or_404(PriceListComment, id=comment_id)

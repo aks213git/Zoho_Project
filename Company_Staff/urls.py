@@ -33,7 +33,6 @@ urlpatterns = [
     path('toggle_price_list_status/<int:price_list_id>/', views.toggle_price_list_status, name='toggle_price_list_status'),
     
     path('add_comment/<int:price_list_id>/', views.add_comment, name='add_comment'),
-    path('edit_comment/<int:comment_id>/<int:price_list_id>/', views.edit_comment, name='edit_comment'),
     path('delete_comment/<int:comment_id>/<int:price_list_id>/', views.delete_comment, name='delete_comment'),
     
     path('email_pricelist/<int:price_list_id>/', views.email_pricelist, name='email_pricelist'),
