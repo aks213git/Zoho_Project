@@ -240,6 +240,182 @@ def all_price_lists(request):
         }
         return render(request,'zohomodules/price_list/all_price_lists.html',context)
 
+
+
+import csv
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import PriceList, PriceListItem, PriceListTransactionHistory, CompanyDetails, LoginDetails
+
+# def import_price_list(request):
+#     if 'login_id' in request.session:
+#         if request.session.has_key('login_id'):
+#             log_id = request.session['login_id']
+#         else:
+#             return redirect('/')
+    
+#     log_details = LoginDetails.objects.get(id=log_id)
+
+#     if log_details.user_type == "Company":
+#         dash_details = CompanyDetails.objects.get(login_details=log_details)
+#         price_lists = PriceList.objects.filter(company=dash_details)
+#     elif log_details.user_type == "Staff":
+#         dash_details = StaffDetails.objects.get(login_details=log_details)
+#         price_lists = PriceList.objects.filter(company=dash_details.company)
+#     else:
+#         return redirect('/')
+
+#     if request.method == 'POST' and request.FILES['file']:
+#         csv_file = request.FILES['file']
+
+#         try:
+#             decoded_file = csv_file.read().decode('utf-8').splitlines()
+#             reader = csv.DictReader(decoded_file)
+            
+#             for row in reader:
+#                 PriceList.objects.create(
+#                     name=row['NAME'],
+#                     type=row['TYPE'],
+#                     item_rate_type=row['ITEM_RATE_TYPE'],
+#                     description=row['DESCRIPTION'],
+#                     percentage_type=row['PERCENTAGE_TYPE'],
+#                     percentage_value=row['PERCENTAGE_VALUE'],
+#                     round_off=row['ROUND_OFF'],
+#                     currency=row['CURRENCY'],
+#                     company=dash_details,
+#                     login_details=log_details,
+#                 )
+
+#             messages.success(request, 'Price List data imported successfully.')
+#             return redirect('all_price_lists')
+
+#         except Exception as e:
+#             messages.error(request, f'Error importing data: {str(e)}')
+
+#     return redirect('all_price_lists') 
+
+
+def import_price_list(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+        else:
+            return redirect('/')
+    
+    log_details = LoginDetails.objects.get(id=log_id)
+
+    if log_details.user_type == "Company":
+        dash_details = CompanyDetails.objects.get(login_details=log_details)
+        items = Items.objects.filter(company=dash_details,activation_tag='active')
+        if request.method == 'POST' and request.FILES['file']:
+            csv_file = request.FILES['file']
+
+        try:
+            decoded_file = csv_file.read().decode('utf-8', errors='replace').splitlines()
+            reader = csv.DictReader(decoded_file)
+
+            
+            for row in reader:
+                new_price_list = PriceList.objects.create(
+                    name=row['name'],  # Use lowercase 'name' instead of 'NAME'
+                    type=row['type'],  # Use lowercase 'type' instead of 'TYPE'
+                    item_rate_type=row['item_rate_type'],
+                    description=row['description'],
+                    percentage_type=row['percentage_type'],
+                    percentage_value=row['percentage_value'],
+                    round_off=row['round_off'],
+                    currency=row['currency'],
+                    company=dash_details,
+                    login_details=log_details,
+                )
+                PriceListTransactionHistory.objects.create(
+                company=dash_details,
+                login_details=log_details,
+                price_list=new_price_list,
+                action='Created',
+                )
+                custom_rates = request.POST.getlist('custom_rate')
+                for item, custom_rate in zip(items, custom_rates):
+                    custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                    standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                    PriceListItem.objects.create(
+                        company=dash_details,
+                        login_details=log_details,
+                        price_list=new_price_list,
+                        item=item,
+                        standard_rate=standard_rate,
+                        custom_rate=custom_rate,
+                    )
+                return redirect('all_price_lists')
+            context = {
+            'details': dash_details,
+            'items': items,
+            }
+            messages.success(request, 'Price List data imported successfully.')
+            return redirect('all_price_lists',context)
+
+
+        except Exception as e:
+            messages.error(request, f'Error importing data: {str(e)}')
+
+    elif log_details.user_type == "Staff":
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        price_lists = PriceList.objects.filter(company=dash_details.company)
+        if request.method == 'POST' and request.FILES['file']:
+            csv_file = request.FILES['file']
+
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+            
+            for row in reader:
+                new_price_list = PriceList.objects.create(
+                    name=row['name'],  # Use lowercase 'name' instead of 'NAME'
+                    type=row['type'],  # Use lowercase 'type' instead of 'TYPE'
+                    item_rate_type=row['item_rate_type'],
+                    description=row['description'],
+                    percentage_type=row['percentage_type'],
+                    percentage_value=row['percentage_value'],
+                    round_off=row['round_off'],
+                    currency=row['currency'],
+                    company=dash_details,
+                    login_details=log_details,
+                )
+                PriceListTransactionHistory.objects.create(
+                company=dash_details,
+                login_details=log_details,
+                price_list=new_price_list,
+                action='Created',
+                )
+                custom_rates = request.POST.getlist('custom_rate')
+                for item, custom_rate in zip(items, custom_rates):
+                    custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                    standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                    PriceListItem.objects.create(
+                        company=dash_details,
+                        login_details=log_details,
+                        price_list=new_price_list,
+                        item=item,
+                        standard_rate=standard_rate,
+                        custom_rate=custom_rate,
+                    )
+                return redirect('all_price_lists')
+            context = {
+            'details': dash_details,
+            'items': items,
+            }
+            messages.success(request, 'Price List data imported successfully.')
+            return redirect('all_price_lists',context)
+        except Exception as e:
+            messages.error(request, f'Error importing data: {str(e)}')
+    else:
+        return redirect('/')
+
+    
+    return redirect('all_price_lists') 
+
+
+
 def create_price_list(request):
     if 'login_id' in request.session:
         if request.session.has_key('login_id'):
@@ -632,18 +808,12 @@ def add_comment(request, price_list_id):
             )
         return redirect('price_list_details', price_list_id=price_list_id)
 
-
-
-
-
-
-
 def delete_comment(request, comment_id, price_list_id):
     comment = get_object_or_404(PriceListComment, id=comment_id)
     comment.delete()
     return redirect('price_list_details', price_list_id=price_list_id)
 
-   
+
 
 # def view_comment(request, price_list_id):
 #     if 'login_id' in request.session:
@@ -676,6 +846,68 @@ def delete_comment(request, comment_id, price_list_id):
 #             'comments': comments,
 #         }
 #         return render(request, 'zohomodules/price_list/price_list_details.html', context)
+
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.contrib import messages
+from .models import PriceList, PriceListItem
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.contrib import messages
+from .models import PriceList, PriceListItem
+
+def whatsapp_pricelist(request, price_list_id):
+    try:
+        price_list = PriceList.objects.get(id=price_list_id)
+        price_list_items = PriceListItem.objects.filter(price_list=price_list)
+
+        context = {
+            'price_list': price_list,
+            'price_list_items': price_list_items,
+        }
+
+        # Render the template
+        html = render(request, 'zohomodules/price_list/pdf_price_list.html', context).content
+
+        # Create a PDF file
+        pdf_file = BytesIO()
+        pisa.pisaDocument(BytesIO(html), pdf_file)
+
+        # Check if PDF generation was successful
+        if pdf_file.tell():
+            pdf_file.seek(0)
+
+            # Send the PDF as a file attachment
+            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{price_list.name}_price_list.pdf"'
+            file= response
+
+            # Get the absolute URL for the current request
+            absolute_uri = request.build_absolute_uri()
+
+            # Create the WhatsApp message with a link to download the PDF
+            whatsapp_message = f"Check out this price list: [Download PDF]({file})"
+
+            # Create the WhatsApp link
+            whatsapp_link = f"https://wa.me/?text={whatsapp_message}"
+
+            # Return the PDF as a file attachment
+            return redirect(whatsapp_link)
+
+    except Exception as e:
+        print(e)
+        messages.error(request, f'{e}')
+
+    # If there is an error or PDF generation fails, redirect to 'all_price_lists'
+    return redirect('price_list_details', price_list_id=price_list_id)
 
 # email pricelist details(overview)
 def email_pricelist(request, price_list_id):
@@ -714,6 +946,59 @@ def email_pricelist(request, price_list_id):
         messages.error(request, f'{e}')
         return redirect('all_price_lists')  
 
+# dwnld pdf
+def price_list_pdf(request, price_list_id):
+    try:
+        price_list = PriceList.objects.get(id=price_list_id)
+        price_list_item = PriceListItem.objects.filter(price_list=price_list)
+
+        context = {
+            'price_list': price_list,
+            'price_list_item': price_list_item,
+        }
+
+        template_path = 'zohomodules/price_list/pdf_price_list.html'
+        template = get_template(template_path)
+        html = template.render(context)
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+        pdf = result.getvalue()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{price_list.name}_Details.pdf"'
+        response.write(pdf)
+        return response
+    except Exception as e:
+        print(e)
+        messages.error(request, f'{e}')
+        return redirect('all_price_lists')
+
+# upload and download attachment
+def attach_file(request, price_list_id):
+    price_list = PriceList.objects.get(pk=price_list_id)
+    if request.method == 'POST':
+        attachment = request.FILES.get('attachment')
+        price_list.attachment = attachment
+        price_list.save()
+        return redirect('price_list_details', price_list_id=price_list.id)
+    return HttpResponse("Invalid request method.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
 # email listout page
 def email_all_price_lists(request):
     if 'login_id' in request.session:
@@ -810,45 +1095,3 @@ def email_all_price_lists(request):
     else:
         return HttpResponse("Unauthorized Access")
   
-# dwnld pdf
-def price_list_pdf(request, price_list_id):
-    try:
-        price_list = PriceList.objects.get(id=price_list_id)
-        price_list_item = PriceListItem.objects.filter(price_list=price_list)
-
-        context = {
-            'price_list': price_list,
-            'price_list_item': price_list_item,
-        }
-
-        template_path = 'zohomodules/price_list/pdf_price_list.html'
-        template = get_template(template_path)
-        html = template.render(context)
-        result = BytesIO()
-        pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
-        pdf = result.getvalue()
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{price_list.name}_Details.pdf"'
-        response.write(pdf)
-        return response
-    except Exception as e:
-        print(e)
-        messages.error(request, f'{e}')
-        return redirect('all_price_lists')
-
-# upload and download attachment
-def attach_file(request, price_list_id):
-    price_list = PriceList.objects.get(pk=price_list_id)
-    if request.method == 'POST':
-        attachment = request.FILES.get('attachment')
-        price_list.attachment = attachment
-        price_list.save()
-        return redirect('price_list_details', price_list_id=price_list.id)
-    return HttpResponse("Invalid request method.")
-
-
-    
-    
-    
-    
-    

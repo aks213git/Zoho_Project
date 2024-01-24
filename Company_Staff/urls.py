@@ -36,10 +36,13 @@ urlpatterns = [
     path('delete_comment/<int:comment_id>/<int:price_list_id>/', views.delete_comment, name='delete_comment'),
     
     path('email_pricelist/<int:price_list_id>/', views.email_pricelist, name='email_pricelist'),
+    path('whatsapp_pricelist/<int:price_list_id>/', views.whatsapp_pricelist, name='whatsapp_pricelist'),
     path('price_list_pdf/<int:price_list_id>/', views.price_list_pdf, name='price_list_pdf'),
     path('email_all_price_lists', views.email_all_price_lists, name='email_all_price_lists'),
     
     path('attach_file/<int:price_list_id>/', views.attach_file, name='attach_file'),
+    
+    path('import_price_list/', views.import_price_list, name='import_price_list'),
   
     # path('view_comment/<int:price_list_id>/', views.view_comment, name='view_comment'), 
     

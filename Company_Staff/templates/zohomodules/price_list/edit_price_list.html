@@ -77,7 +77,7 @@
                         <label for="round_off" class="col-sm-2 col-form-label text-white">Round Off:</label>
                         <div class="col-sm-10">
                             <select name="round_off" class="form-control-sm">
-                                <option value="Never Mind" {% if price_list.round_off == "Never Mind" %}selected{% endif %}>Never Mind</option>
+                                <option value="Never Mind" {% if price_list.round_off == "Never Mind" or price_list.item_rate_type == "Each Item" %}selected{% endif %}>Never Mind</option>
                                 <option value="Nearest Whole Number" {% if price_list.round_off == "Nearest Whole Number" %}selected{% endif %}>Nearest Whole Number</option>
                                 <option value="0.99" {% if price_list.round_off == "0.99" %}selected{% endif %}>0.99</option>
                                 <option value="0.50" {% if price_list.round_off == "0.50" %}selected{% endif %}>0.50</option>
@@ -85,6 +85,7 @@
                             </select>
                         </div>
                     </div><br>
+                    
 
                     <div id="currency_field" style="display: none;">
                         <div class="form-group row">
@@ -128,8 +129,63 @@
             </div>
         </div>
     </div>
+<script>
 
-    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const typeRadios = document.getElementsByName("type");
+        const itemRateTypeRadios = document.getElementsByName("item_rate_type");
+        const roundOffSelect = document.getElementsByName("round_off")[0];
+        const percentageFields = document.getElementById("percentage_fields");
+        const currencyField = document.getElementById("currency_field");
+        const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
+        const percentageValueInput = document.getElementsByName("percentage_value")[0];
+    
+        function handleTypeChange() {
+            const selectedType = Array.from(typeRadios).find(radio => radio.checked);
+            const standardRateElements = document.querySelectorAll('.standard-rate');
+    
+            if (selectedType && selectedType.value === "Sales") {
+                standardRateElements.forEach(element => {
+                    element.innerText = `Sales: ${element.dataset.salesPrice}`;
+                });
+            } else if (selectedType && selectedType.value === "Purchase") {
+                standardRateElements.forEach(element => {
+                    element.innerText = `Purchase: ${element.dataset.purchasePrice}`;
+                });
+            }
+        }
+    
+        function handleItemRateTypeChange() {
+            const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
+    
+            if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
+                percentageFields.style.display = "block";
+                currencyField.style.display = "none";
+                roundOffSelect.disabled = false; // Enable the round-off select
+            } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
+                percentageFields.style.display = "none";
+                currencyField.style.display = "block";
+                roundOffSelect.value = "Never Mind"; // Set the value to "Never Mind"
+            } else {
+                percentageFields.style.display = "none";
+                currencyField.style.display = "none";
+                roundOffSelect.disabled = false; // Enable the round-off select
+            }
+        }
+    
+        typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
+    
+        itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
+    
+        handleTypeChange();
+        handleItemRateTypeChange();
+    });
+    
+    
+    
+</script>
+
+    <!-- <script>
         document.addEventListener("DOMContentLoaded", function () {
             const typeRadios = document.getElementsByName("type");
             const itemRateTypeRadios = document.getElementsByName("item_rate_type");
@@ -178,7 +234,7 @@
             handleTypeChange();
             handleItemRateTypeChange();
         });
-    </script>
+    </script> -->
 
 </body>
 

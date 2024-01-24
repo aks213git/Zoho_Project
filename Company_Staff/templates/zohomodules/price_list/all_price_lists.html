@@ -15,7 +15,8 @@
                             {% endfor %}
                         {% endif %}
 
-                    <div class="row  h-100 ">
+                    <div class="row   h-100 ">
+                        
                         <div class="col-md-4">
                             <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
                         </div>
@@ -43,19 +44,24 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="col-md-6 d-flex justify-content-end h-100">
                             <a href="#" id="exportBtn" class="btn btn-outline-warning ms-1">
                                 <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
                             </a>
                             
-                            
-                            <a href="#" id="importBtn" class="btn btn-outline-warning ms-1">
+                            <!-- <a href="#" id="importBtn" class="btn btn-outline-warning ms-1">
                                 <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
-                            </a>
+                            </a> -->
+                            <button type="button" class="btn btn-outline-warning ms-1" data-toggle="modal" data-target="#importModal">
+                                <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                            </button>
                             
                             <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
                         </div>
                     </div>
+
+                    <!-- Email Modal -->
                     <div class="modal fade" id="EmailModal">
                         <div class="modal-dialog modal-xl">
                           <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
@@ -91,6 +97,32 @@
                           </div>
                         </div>
                     </div>
+
+                    <!-- Import Modal -->
+                    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="importModalLabel">Import Price List</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{% url 'import_price_list' %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="file">Select File:</label>
+                                            <input type="file" name="file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-warning">
+                                            <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
 
 
@@ -111,8 +143,11 @@
                             </thead>
                             <tbody>
                                 {% for price_list in price_lists %}
-                                <tr class="text-white" style="text-align: center;">
+                                <tr class="text-white" style="text-align: center;" >
+                                    <a href="{% url 'price_list_details' price_list.id %}">
+
                                     <td>{{ forloop.counter }}</td>
+
                                     <td>{{ price_list.date }}</td>
                                     
                                     <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.name }}</td></a>
@@ -129,11 +164,13 @@
                                     
                                     <td>{{ price_list.type }}</td>
                                     <td class="text-white">
-                                        {% if price_list.item_rate_type == 'Percentage' %}
+
+                                        <!-- {% if price_list.item_rate_type == 'Percentage' %}
                                             {{ price_list.round_off }}
                                         {% elif price_list.item_rate_type == 'Each Item' %}
                                             Never Mind
-                                        {% endif %}
+                                        {% endif %} -->
+                                        {{ price_list.round_off }}
                                     </td>
                                     <td>{{ price_list.get_status_display }}</td>
                                     <td>
@@ -143,6 +180,7 @@
                                             Each Item
                                         {% endif %}
                                     </td>
+                                </a>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -155,16 +193,12 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>    
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.7.5/dist/jspdf.plugin.autotable.js"></script>
 <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
-
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
@@ -225,49 +259,13 @@
         var table = document.getElementById('table');
         var ws = XLSX.utils.table_to_sheet(table);
 
-        
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'PriceLists');
 
-        
         var fileName = 'PriceLists.xlsx';
         XLSX.writeFile(wb, fileName);
     });
-</script>
 
-
-
-
-<script>
-    $(document).ready(function () {
-        $('#shareWhatsapp').click(function () {
-            var htmlFilePath = 'zohomodules/price_list/pdf_all_price_lists.html';
-
-            $.get(htmlFilePath, function (htmlContent) {
-                html2pdf(htmlContent, {
-                    margin: 10,
-                    filename: 'PriceLists.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                }).then(function (pdf) {
-                    var pdfBlob = pdf.output('blob');
-                    var pdfUrl = URL.createObjectURL(pdfBlob);
-
-                    var whatsappLink = 'whatsapp://send?text=Check out these price lists: ' + pdfUrl;
-
-                    window.location.href = whatsappLink;
-                });
-            });
-        });
-    });
-</script>
-
-
-
-
-
-<script>
     $(document).ready(function() {
         $('.select2').select2({
             templateResult: formatOption
@@ -283,34 +281,29 @@
         );
         return $option;
     }
+
+    $(document).ready(function() {
+        var $rows = $('#table tbody tr');
+        $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        $rows.show().filter(function() {
+            var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+            return !~text.indexOf(val);
+        }).hide();
+        });
+    });
+
+    $(document).ready(function () {
+        $('#sort-select').change(function () {
+            var sortBy = $(this).val();
+            window.location.href = '?sortBy=' + sortBy;
+        });
+        $('#status-select').change(function () {
+            var filterByStatus = $(this).val();
+            window.location.href = '?filterByStatus=' + filterByStatus;
+        });
+    });
 </script>
-    <script>
-        $(document).ready(function() {
-          var $rows = $('#table tbody tr');
-          $('#search').keyup(function() {
-            var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-            $rows.show().filter(function() {
-              var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-              return !~text.indexOf(val);
-            }).hide();
-          });
-        });
-      </script>
-
-     
-
-    <script>
-        $(document).ready(function () {
-            $('#sort-select').change(function () {
-                var sortBy = $(this).val();
-                window.location.href = '?sortBy=' + sortBy;
-            });
-            $('#status-select').change(function () {
-                var filterByStatus = $(this).val();
-                window.location.href = '?filterByStatus=' + filterByStatus;
-            });
-        });
-    </script>
     
 </body>
 
