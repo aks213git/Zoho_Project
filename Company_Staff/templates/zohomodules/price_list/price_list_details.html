@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+{% load social_share %}
 <style>
     
     
@@ -117,6 +118,14 @@
 <body>
     <div class="body-wrapper">
         <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                 {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                 {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                  <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning-emphasis">All price lists</a></li>
+                  <li class="breadcrumb-item" aria-current="page">Over view</li>
+                </ol>
+            </nav>
             <div>
                 <div class="row p-4 rounded bg-black" style=" border-radius: 5px">
                     

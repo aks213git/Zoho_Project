@@ -317,8 +317,8 @@ def import_price_list(request):
             
             for row in reader:
                 new_price_list = PriceList.objects.create(
-                    name=row['name'],  # Use lowercase 'name' instead of 'NAME'
-                    type=row['type'],  # Use lowercase 'type' instead of 'TYPE'
+                    name=row['name'],  
+                    type=row['type'], 
                     item_rate_type=row['item_rate_type'],
                     description=row['description'],
                     percentage_type=row['percentage_type'],
@@ -360,7 +360,6 @@ def import_price_list(request):
 
     elif log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
-        price_lists = PriceList.objects.filter(company=dash_details.company)
         if request.method == 'POST' and request.FILES['file']:
             csv_file = request.FILES['file']
 
@@ -370,8 +369,8 @@ def import_price_list(request):
             
             for row in reader:
                 new_price_list = PriceList.objects.create(
-                    name=row['name'],  # Use lowercase 'name' instead of 'NAME'
-                    type=row['type'],  # Use lowercase 'type' instead of 'TYPE'
+                    name=row['name'], 
+                    type=row['type'],  
                     item_rate_type=row['item_rate_type'],
                     description=row['description'],
                     percentage_type=row['percentage_type'],
@@ -656,6 +655,7 @@ def price_list_details(request, price_list_id):
         latest_transaction = PriceListTransactionHistory.objects.filter(price_list=price_list)
 
         context={
+            'log_id':log_id,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -689,6 +689,7 @@ def price_list_details(request, price_list_id):
         transaction_history = PriceListTransactionHistory.objects.filter(price_list=price_list)
         items = PriceListItem.objects.filter(company=dash_details.company, price_list=price_list)
         context={
+            'log_id':log_id,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -850,19 +851,13 @@ def delete_comment(request, comment_id, price_list_id):
 
 
 
-from django.shortcuts import render
-from django.http import HttpResponse
-from xhtml2pdf import pisa
-from io import BytesIO
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import PriceList, PriceListItem
-
-from django.shortcuts import render
-from django.http import HttpResponse
-from xhtml2pdf import pisa
 from io import BytesIO
-from django.contrib import messages
+from xhtml2pdf import pisa
+from django.http import HttpResponse
 from .models import PriceList, PriceListItem
+import os
 
 def whatsapp_pricelist(request, price_list_id):
     try:
@@ -885,21 +880,22 @@ def whatsapp_pricelist(request, price_list_id):
         if pdf_file.tell():
             pdf_file.seek(0)
 
-            # Send the PDF as a file attachment
-            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{price_list.name}_price_list.pdf"'
-            file= response
+            # Save the PDF to the server's media folder
+            pdf_filename = f"{price_list.name}_price_list.pdf"
+            pdf_path = os.path.join('media', pdf_filename)
+            with open(pdf_path, 'wb') as pdf_file_on_server:
+                pdf_file_on_server.write(pdf_file.read())
 
-            # Get the absolute URL for the current request
-            absolute_uri = request.build_absolute_uri()
+            # Create a direct link to the saved PDF
+            pdf_link = f"{request.scheme}://{request.get_host()}/{pdf_path}"
 
             # Create the WhatsApp message with a link to download the PDF
-            whatsapp_message = f"Check out this price list: [Download PDF]({file})"
+            whatsapp_message = f"Check out this price list: [Download PDF]{pdf_link}"
 
             # Create the WhatsApp link
             whatsapp_link = f"https://wa.me/?text={whatsapp_message}"
 
-            # Return the PDF as a file attachment
+            # Return the WhatsApp link
             return redirect(whatsapp_link)
 
     except Exception as e:
@@ -907,7 +903,42 @@ def whatsapp_pricelist(request, price_list_id):
         messages.error(request, f'{e}')
 
     # If there is an error or PDF generation fails, redirect to 'all_price_lists'
-    return redirect('price_list_details', price_list_id=price_list_id)
+    return redirect('all_price_lists')
+
+
+# from django.shortcuts import render, HttpResponse
+# from django.template.loader import render_to_string
+# from xhtml2pdf import pisa
+
+# def generate_pdf(request, price_list_id):
+#     price_list = PriceList.objects.get(id=price_list_id)
+#     price_list_items = PriceListItem.objects.filter(price_list=price_list)
+
+#         context = {
+#             'price_list': price_list,
+#             'price_list_items': price_list_items,
+#         }
+#     html = render_to_string('your_template_with_details_container.html', context)
+
+#     # Create a PDF file
+#     pdf_file = BytesIO()
+#     pisa.pisaDocument(BytesIO(html.encode("UTF-8")), pdf_file)
+
+#     # Check if PDF generation was successful
+#     if pdf_file.tell():
+#         pdf_file.seek(0)
+
+#         # Save the PDF file or serve it directly
+#         # For simplicity, you can save it to the media directory
+#         pdf_path = f'media/{price_list.name}_price_list.pdf'
+#         with open(pdf_path, 'wb') as pdf:
+#             pdf.write(pdf_file.read())
+
+#         return HttpResponse(pdf_path)
+#     else:
+#         return HttpResponse("Error generating PDF", status=500)
+
+
 
 # email pricelist details(overview)
 def email_pricelist(request, price_list_id):

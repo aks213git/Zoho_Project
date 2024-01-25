@@ -5,47 +5,54 @@
 <body>       
     <div class="body-wrapper">
         <div class="container-fluid ">
-            <div> 
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-light">
+                 {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
+                 {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                  <li class="breadcrumb-item" aria-current="page">Over view</li>
+                </ol>
+            </nav>
+          <div> 
                 <div class=" mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
                     <h1 class="text-light">View Price Lists</h1>
                     <br>
                     {% if messages %}
-                            {% for message in messages %}
-                                <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
-                            {% endfor %}
-                        {% endif %}
+                        {% for message in messages %}
+                            <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+                        {% endfor %}
+                    {% endif %}
 
-                    <div class="row   h-100 ">
+                    <div class="row  ">
+                        <div class="col-md-6 d-flex p-2 ">
+
+                          <div class="col-md-6">
+                              <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
+                          </div>
+                          
+                              <div class="input-group-append ms-2 " >
+                                  <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                      <i class="fa fa-filter"></i> 
+                                  </button>
+                                  <div class="dropdown-menu">
+                                      <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                      <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                      <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                  </div>
+                              </div>
+                              <div class="input-group-append ms-2">
+                                  <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                      <i class="fas fa-sort"></i> 
+                                  </button>
+                                  <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
+                                      <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
+                                      <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
+                                      <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
+                                  </div>
+                              </div>
+                        </div>
                         
-                        <div class="col-md-4">
-                            <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
-                        </div>
-                        <div class="col-md-1">
-                            <div class="input-group-append h-100" >
-                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fa fa-filter"></i> 
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
-                                    <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
-                                    <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="input-group-append h-100">
-                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-sort"></i> 
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
-                                    <a class="dropdown-item" href="?sort=all{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">All</a>
-                                    <a class="dropdown-item" href="?sort=name{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Name</a>
-                                    <a class="dropdown-item" href="?sort=type{% if filter_option != 'all' %}&filter={{ filter_option }}{% endif %}">Type</a>
-                                </div>
-                            </div>
-                        </div>
                         
-                        <div class="col-md-6 d-flex justify-content-end h-100">
+                        <div class="col-md-6 d-flex justify-content-end h-100 p-2">
                             <a href="#" id="exportBtn" class="btn btn-outline-warning ms-1">
                                 <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
                             </a>

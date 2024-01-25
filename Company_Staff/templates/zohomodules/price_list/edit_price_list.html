@@ -123,7 +123,7 @@
 
                     <br>
                     <button type="submit" class="btn btn-warning">Save</button>
-                    <button type="button" class="btn btn-danger">Cancel</button>
+                    <a href="{% url 'all_price_lists' %}" type="button" class="btn btn-danger">Cancel</a>
                     
                 </form>
             </div>
@@ -241,3 +241,53 @@
 </html>
 
 {% endblock %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const typeRadios = document.getElementsByName("type");
+        const itemRateTypeRadios = document.getElementsByName("item_rate_type");
+        const percentageFields = document.getElementById("percentage_fields");
+        const currencyField = document.getElementById("currency_field");
+        const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
+        const percentageValueInput = document.getElementsByName("percentage_value")[0];
+
+        function handleTypeChange() {
+            const selectedType = Array.from(typeRadios).find(radio => radio.checked);
+            const standardRateElements = document.querySelectorAll('.standard-rate');
+            
+            if (selectedType && selectedType.value === "Sales") {
+                standardRateElements.forEach(element => {
+                    element.innerText = `Sales: ${element.dataset.salesPrice}`;
+                });
+            } else if (selectedType && selectedType.value === "Purchase") {
+                standardRateElements.forEach(element => {
+                    element.innerText = ` ${element.dataset.purchasePrice}`;
+                });
+            }
+        }
+
+        function handleItemRateTypeChange() {
+            const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
+
+            if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
+                percentageFields.style.display = "block";
+                currencyField.style.display = "none";
+            } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
+                percentageFields.style.display = "none";
+                currencyField.style.display = "block";
+
+                percentageTypeSelect.removeAttribute("required");
+                percentageValueInput.removeAttribute("required");
+            } else {
+                percentageFields.style.display = "none";
+                currencyField.style.display = "none";
+            }
+        }
+
+        typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
+
+        itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
+
+        handleTypeChange();
+        handleItemRateTypeChange();
+    });
+</script>
