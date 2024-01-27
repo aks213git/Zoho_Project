@@ -6,6 +6,15 @@
 
     <div class="body-wrapper">
         <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-light">
+                    {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning">All price lists</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'price_list_details' price_list.id %}" class="text-warning">Over view</a></li>
+                    <li class="breadcrumb-item" aria-current="page">Edit price list</li>
+                </ol>
+            </nav>
             <div class="overflow-auto  mt-lg-4 mt-2 rounded p-4" style="background-color: rgb(0, 0, 0);color: white;">
 
                 <h1 class="text-white">Edit Price List</h1>
@@ -23,11 +32,11 @@
                     <div class="form-group row">
                         <label class="col-sm-2 col-form-label text-white">Type:</label>
                         <div class="col-sm-10">
-                            <div class="form-check">
+                            <div class="form-check form-check-inline">
                                 <input type="radio" id="salesType" name="type" value="Sales" class="form-check-input" {% if price_list.type == "Sales" %}checked{% endif %} required>
                                 <label for="salesType" class="form-check-label">Sales</label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check form-check-inline">
                                 <input type="radio" id="purchaseType" name="type" value="Purchase" class="form-check-input" {% if price_list.type == "Purchase" %}checked{% endif %} required>
                                 <label for="purchaseType" class="form-check-label">Purchase</label>
                             </div>
@@ -51,7 +60,7 @@
                     <div class="form-group row">
                         <label for="description" class="col-sm-2 col-form-label text-white">Description:</label>
                         <div class="col-sm-10">
-                            <textarea name="description" rows="2" class="form-control-sm" required>{{ price_list.description }}</textarea>
+                            <textarea name="description" rows="2" class="form-control-sm" >{{ price_list.description }}</textarea>
                         </div>
                     </div><br>
 
@@ -71,20 +80,23 @@
                                 </div>
                             </div>
                         </div>
-                    </div><br>
-
-                    <div class="form-group row">
-                        <label for="round_off" class="col-sm-2 col-form-label text-white">Round Off:</label>
-                        <div class="col-sm-10">
-                            <select name="round_off" class="form-control-sm">
-                                <option value="Never Mind" {% if price_list.round_off == "Never Mind" or price_list.item_rate_type == "Each Item" %}selected{% endif %}>Never Mind</option>
-                                <option value="Nearest Whole Number" {% if price_list.round_off == "Nearest Whole Number" %}selected{% endif %}>Nearest Whole Number</option>
-                                <option value="0.99" {% if price_list.round_off == "0.99" %}selected{% endif %}>0.99</option>
-                                <option value="0.50" {% if price_list.round_off == "0.50" %}selected{% endif %}>0.50</option>
-                                <option value="0.49" {% if price_list.round_off == "0.49" %}selected{% endif %}>0.49</option>
-                            </select>
+                        <br>
+                        <div class="form-group row">
+                            <label for="round_off" class="col-sm-2 col-form-label text-white">Round Off:</label>
+                            <div class="col-sm-10">
+                                <select name="round_off" class="form-control-sm">
+                                    <option value="Never Mind" {% if price_list.round_off == "Never Mind" or price_list.item_rate_type == "Each Item" %}selected{% endif %}>Never Mind</option>
+                                    <option value="Nearest Whole Number" {% if price_list.round_off == "Nearest Whole Number" %}selected{% endif %}>Nearest Whole Number</option>
+                                    <option value="0.99" {% if price_list.round_off == "0.99" %}selected{% endif %}>0.99</option>
+                                    <option value="0.50" {% if price_list.round_off == "0.50" %}selected{% endif %}>0.50</option>
+                                    <option value="0.49" {% if price_list.round_off == "0.49" %}selected{% endif %}>0.49</option>
+                                </select>
+                            </div>
                         </div>
-                    </div><br>
+                    </div>
+                    <br>
+
+                    <br>
                     
 
                     <div id="currency_field" style="display: none;">
@@ -123,7 +135,7 @@
 
                     <br>
                     <button type="submit" class="btn btn-warning">Save</button>
-                    <a href="{% url 'all_price_lists' %}" type="button" class="btn btn-danger">Cancel</a>
+                    <a href="{% url 'price_list_details' price_list.id %}" type="button" class="btn btn-danger">Cancel</a>
                     
                 </form>
             </div>

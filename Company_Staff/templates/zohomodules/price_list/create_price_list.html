@@ -6,6 +6,14 @@
     <body>
         <div class="body-wrapper">
             <div class="container-fluid">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb text-light">
+                        {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                        {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                        <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning">All price lists</a></li>
+                        <li class="breadcrumb-item" aria-current="page">New price list</li>
+                    </ol>
+                </nav>
                 <div class="mt-lg-4 rounded p-4" style="background-color: rgb(0, 0, 0); color: white;">
                     <h1 class="text-white">Create Price List</h1>
 

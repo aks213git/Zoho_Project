@@ -208,6 +208,8 @@ def all_price_lists(request):
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
         context={
+            'log_id':log_id,
+            'log_details':log_details,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -232,6 +234,8 @@ def all_price_lists(request):
         elif filter_option == 'inactive':
             price_lists = price_lists.filter(status='Inactive')
         context={
+            'log_id':log_id,
+            'log_details':log_details,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -258,24 +262,20 @@ from .models import PriceList, PriceListItem, PriceListTransactionHistory, Compa
 
 #     if log_details.user_type == "Company":
 #         dash_details = CompanyDetails.objects.get(login_details=log_details)
-#         price_lists = PriceList.objects.filter(company=dash_details)
-#     elif log_details.user_type == "Staff":
-#         dash_details = StaffDetails.objects.get(login_details=log_details)
-#         price_lists = PriceList.objects.filter(company=dash_details.company)
-#     else:
-#         return redirect('/')
-
-#     if request.method == 'POST' and request.FILES['file']:
-#         csv_file = request.FILES['file']
+#         items = Items.objects.filter(company=dash_details,activation_tag='active')
+#         if request.method == 'POST' and request.FILES['file']:
+#             csv_file = request.FILES['file']
 
 #         try:
-#             decoded_file = csv_file.read().decode('utf-8').splitlines()
+#             decoded_file = csv_file.read().decode('utf-8', errors='replace').splitlines()
 #             reader = csv.DictReader(decoded_file)
+
             
 #             for row in reader:
-#                 PriceList.objects.create(
-#                     name=row['NAME'],
-#                     type=row['TYPE'],
+                
+#                 new_price_list = PriceList.objects.create(
+#                     name=row['NAME'],  
+#                     type=row['TYPE'], 
 #                     item_rate_type=row['ITEM_RATE_TYPE'],
 #                     description=row['DESCRIPTION'],
 #                     percentage_type=row['PERCENTAGE_TYPE'],
@@ -285,15 +285,97 @@ from .models import PriceList, PriceListItem, PriceListTransactionHistory, Compa
 #                     company=dash_details,
 #                     login_details=log_details,
 #                 )
-
+#                 PriceListTransactionHistory.objects.create(
+#                 company=dash_details,
+#                 login_details=log_details,
+#                 price_list=new_price_list,
+#                 action='Created',
+#                 )
+#                 custom_rates = request.POST.getlist('custom_rate')
+#                 for item, custom_rate in zip(items, custom_rates):
+#                     custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+#                     standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+#                     PriceListItem.objects.create(
+#                         company=dash_details,
+#                         login_details=log_details,
+#                         price_list=new_price_list,
+#                         item=item,
+#                         standard_rate=standard_rate,
+#                         custom_rate=custom_rate,
+#                     )
+#                 return redirect('all_price_lists')
+#             context = {
+#             'details': dash_details,
+#             'items': items,
+#             }
 #             messages.success(request, 'Price List data imported successfully.')
-#             return redirect('all_price_lists')
+#             return redirect('all_price_lists',context)
+
 
 #         except Exception as e:
 #             messages.error(request, f'Error importing data: {str(e)}')
 
+#     elif log_details.user_type == "Staff":
+#         dash_details = StaffDetails.objects.get(login_details=log_details)
+#         if request.method == 'POST' and request.FILES['file']:
+#             csv_file = request.FILES['file']
+
+#         try:
+#             decoded_file = csv_file.read().decode('utf-8').splitlines()
+#             reader = csv.DictReader(decoded_file)
+            
+#             for row in reader:
+#                 new_price_list = PriceList.objects.create(
+#                     name=row['name'], 
+#                     type=row['type'],  
+#                     item_rate_type=row['item_rate_type'],
+#                     description=row['description'],
+#                     percentage_type=row['percentage_type'],
+#                     percentage_value=row['percentage_value'],
+#                     round_off=row['round_off'],
+#                     currency=row['currency'],
+#                     company=dash_details,
+#                     login_details=log_details,
+#                 )
+#                 PriceListTransactionHistory.objects.create(
+#                 company=dash_details,
+#                 login_details=log_details,
+#                 price_list=new_price_list,
+#                 action='Created',
+#                 )
+#                 custom_rates = request.POST.getlist('custom_rate')
+#                 for item, custom_rate in zip(items, custom_rates):
+#                     custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+#                     standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+#                     PriceListItem.objects.create(
+#                         company=dash_details,
+#                         login_details=log_details,
+#                         price_list=new_price_list,
+#                         item=item,
+#                         standard_rate=standard_rate,
+#                         custom_rate=custom_rate,
+#                     )
+#                 return redirect('all_price_lists')
+#             context = {
+#             'details': dash_details,
+#             'items': items,
+#             }
+#             messages.success(request, 'Price List data imported successfully.')
+#             return redirect('all_price_lists',context)
+#         except Exception as e:
+#             messages.error(request, f'Error importing data: {str(e)}')
+#     else:
+#         return redirect('/')
+
+    
 #     return redirect('all_price_lists') 
 
+
+from django.shortcuts import redirect
+from django.contrib import messages
+from .models import PriceList, PriceListTransactionHistory, PriceListItem
+from Register_Login.models import LoginDetails, CompanyDetails, StaffDetails
+import csv
 
 def import_price_list(request):
     if 'login_id' in request.session:
@@ -306,114 +388,116 @@ def import_price_list(request):
 
     if log_details.user_type == "Company":
         dash_details = CompanyDetails.objects.get(login_details=log_details)
-        items = Items.objects.filter(company=dash_details,activation_tag='active')
+        items = Items.objects.filter(company=dash_details, activation_tag='active')
         if request.method == 'POST' and request.FILES['file']:
             csv_file = request.FILES['file']
 
-        try:
-            decoded_file = csv_file.read().decode('utf-8', errors='replace').splitlines()
-            reader = csv.DictReader(decoded_file)
+            try:
+                decoded_file = csv_file.read().decode('utf-8', errors='replace').splitlines()
+                reader = csv.DictReader(decoded_file)
 
-            
-            for row in reader:
-                new_price_list = PriceList.objects.create(
-                    name=row['name'],  
-                    type=row['type'], 
-                    item_rate_type=row['item_rate_type'],
-                    description=row['description'],
-                    percentage_type=row['percentage_type'],
-                    percentage_value=row['percentage_value'],
-                    round_off=row['round_off'],
-                    currency=row['currency'],
-                    company=dash_details,
-                    login_details=log_details,
-                )
-                PriceListTransactionHistory.objects.create(
-                company=dash_details,
-                login_details=log_details,
-                price_list=new_price_list,
-                action='Created',
-                )
-                custom_rates = request.POST.getlist('custom_rate')
-                for item, custom_rate in zip(items, custom_rates):
-                    custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
-                    standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
-                    PriceListItem.objects.create(
+                for row in reader:
+                    new_price_list = PriceList.objects.create(
+                        name=row['NAME'],
+                        type=row['TYPE'],
+                        item_rate_type=row['ITEM_RATE_TYPE'],
+                        description=row['DESCRIPTION'],
+                        percentage_type=row['PERCENTAGE_TYPE'],
+                        percentage_value=row['PERCENTAGE_VALUE'],
+                        round_off=row['ROUNDINGL'],
+                        currency=row['CURRENCY'],
+                        company=dash_details,
+                        login_details=log_details,
+                    )
+                    PriceListTransactionHistory.objects.create(
                         company=dash_details,
                         login_details=log_details,
                         price_list=new_price_list,
-                        item=item,
-                        standard_rate=standard_rate,
-                        custom_rate=custom_rate,
+                        action='Created',
                     )
-                return redirect('all_price_lists')
-            context = {
-            'details': dash_details,
-            'items': items,
-            }
-            messages.success(request, 'Price List data imported successfully.')
-            return redirect('all_price_lists',context)
+                    custom_rates = request.POST.getlist('custom_rate')
+                    for item, custom_rate in zip(items, custom_rates):
+                        custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                        standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                        PriceListItem.objects.create(
+                            company=dash_details,
+                            login_details=log_details,
+                            price_list=new_price_list,
+                            item=item,
+                            standard_rate=standard_rate,
+                            custom_rate=custom_rate,
+                        )
+                    messages.success(request, 'Price List data imported successfully.')
+                    return redirect('all_price_lists')
+                
+                context = {
+                    'details': dash_details,
+                    'items': items,
+                }
+                messages.success(request, 'Price List data imported successfully.')
+                return redirect('all_price_lists', context)
 
-
-        except Exception as e:
-            messages.error(request, f'Error importing data: {str(e)}')
+            except Exception as e:
+                messages.error(request, f'Error importing data: {str(e)}')
 
     elif log_details.user_type == "Staff":
         dash_details = StaffDetails.objects.get(login_details=log_details)
+        items = Items.objects.filter(company=dash_details, activation_tag='active')
         if request.method == 'POST' and request.FILES['file']:
             csv_file = request.FILES['file']
 
-        try:
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
-            
-            for row in reader:
-                new_price_list = PriceList.objects.create(
-                    name=row['name'], 
-                    type=row['type'],  
-                    item_rate_type=row['item_rate_type'],
-                    description=row['description'],
-                    percentage_type=row['percentage_type'],
-                    percentage_value=row['percentage_value'],
-                    round_off=row['round_off'],
-                    currency=row['currency'],
-                    company=dash_details,
-                    login_details=log_details,
-                )
-                PriceListTransactionHistory.objects.create(
-                company=dash_details,
-                login_details=log_details,
-                price_list=new_price_list,
-                action='Created',
-                )
-                custom_rates = request.POST.getlist('custom_rate')
-                for item, custom_rate in zip(items, custom_rates):
-                    custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
-                    standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
-                    PriceListItem.objects.create(
+            try:
+                decoded_file = csv_file.read().decode('utf-8').splitlines()
+                reader = csv.DictReader(decoded_file)
+
+                for row in reader:
+                    new_price_list = PriceList.objects.create(
+                        name=row['NAME'],
+                        type=row['TYPE'],
+                        item_rate_type=row['ITEM_RATE_TYPE'],
+                        description=row['DESCRIPTION'],
+                        percentage_type=row['PERCENTAGE_TYPE'],
+                        percentage_value=row['PERCENTAGE_VALUE'],
+                        round_off=row['ROUNDINGL'],
+                        currency=row['CURRENCY'],
+                        company=dash_details,
+                        login_details=log_details,
+                    )
+                    PriceListTransactionHistory.objects.create(
                         company=dash_details,
                         login_details=log_details,
                         price_list=new_price_list,
-                        item=item,
-                        standard_rate=standard_rate,
-                        custom_rate=custom_rate,
+                        action='Created',
                     )
-                return redirect('all_price_lists')
-            context = {
-            'details': dash_details,
-            'items': items,
-            }
-            messages.success(request, 'Price List data imported successfully.')
-            return redirect('all_price_lists',context)
-        except Exception as e:
-            messages.error(request, f'Error importing data: {str(e)}')
+                    custom_rates = request.POST.getlist('custom_rate')
+                    for item, custom_rate in zip(items, custom_rates):
+                        custom_rate = custom_rate if custom_rate else (item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                        standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                        PriceListItem.objects.create(
+                            company=dash_details,
+                            login_details=log_details,
+                            price_list=new_price_list,
+                            item=item,
+                            standard_rate=standard_rate,
+                            custom_rate=custom_rate,
+                        )
+                    messages.success(request, 'Price List data imported successfully.')
+                    return redirect('all_price_lists')
+                
+                context = {
+                    'details': dash_details,
+                    'items': items,
+                }
+                messages.success(request, 'Price List data imported successfully.')
+                return redirect('all_price_lists', context)
+
+            except Exception as e:
+                messages.error(request, f'Error importing data: {str(e)}')
+
     else:
         return redirect('/')
 
-    
-    return redirect('all_price_lists') 
-
-
+    return redirect('all_price_lists')
 
 def create_price_list(request):
     if 'login_id' in request.session:
@@ -573,6 +657,7 @@ def edit_price_list(request, price_list_id):
             
             return redirect('all_price_lists')
         context = {
+            'log_details': log_details,
             'details': dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -656,6 +741,7 @@ def price_list_details(request, price_list_id):
 
         context={
             'log_id':log_id,
+            'log_details':log_details,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,
@@ -690,6 +776,7 @@ def price_list_details(request, price_list_id):
         items = PriceListItem.objects.filter(company=dash_details.company, price_list=price_list)
         context={
             'log_id':log_id,
+            'log_details':log_details,
             'details':dash_details,
             'allmodules': allmodules,
             'price_lists': price_lists,

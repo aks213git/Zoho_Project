@@ -119,11 +119,11 @@
     <div class="body-wrapper">
         <div class="container-fluid">
             <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                 {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
-                 {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
-                  <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning-emphasis">All price lists</a></li>
-                  <li class="breadcrumb-item" aria-current="page">Over view</li>
+                <ol class="breadcrumb text-light">
+                    {% if log_details.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    {% if log_details.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
+                    <li class="breadcrumb-item"><a href="{% url 'all_price_lists' %}" class="text-warning">All price lists</a></li>
+                    <li class="breadcrumb-item" aria-current="page">Over view</li>
                 </ol>
             </nav>
             <div>
@@ -166,12 +166,12 @@
                                         <div class="col-md-6">
                                             <b style="font-size:larger;">{{ pl.name }}</b>
                                             <br><br>
-                                            {{ pl.type }}
+                                            {{ pl.date }}
                                         </div>
                                         <div class="col-md-6 text-right">
                                             {{ pl.status }}
                                             <br><br>
-                                            {{ pl.date }}
+                                            {{ pl.type }}
                                         </div>
                                     </div>
                                 </a>
@@ -195,10 +195,9 @@
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa-solid fa-share-nodes"></i>
                                 </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item text-dark" href="{% url 'whatsapp_pricelist' price_list.id %}">Share to WhatsApp</a>
+                                <div class="dropdown-menu text-black">
                                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#EmailModal" >Share to Email</a>
-                                    
+                                    <li class="dropdown-item text-dark text-decoration-none">{% post_to_whatsapp object_or_url "Share to WhatsApp" %}</li>
                                 </div>
                             </div>
                             
@@ -209,7 +208,7 @@
                             <!-- comment  -->
                             <a class="btn btn-outline-warning ms-2" data-toggle="modal" data-target="#addCommentModal"><i class="fa-regular fa-comment"></i></a>
                             
-                            <!-- attach dropdown -->
+                            <!-- attachment dropdown -->
                             <div class="dropdown ms-2">
                                 <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                     <i class="fa-solid fa-paperclip"></i>
@@ -242,49 +241,9 @@
                         {% endif %}
 
 
-                        <!-- <div class="details-container mt-3 ml-3 rounded p-4" style="background-color: rgba(86, 86, 86, 0.827);">
-                            <div class="bg-light rounded p-3 text-black" >
-                                <h3 class="text-center">{{ price_list.name }} Details</h3>
-                                <div class="ml-10">
-                                    <p><b>Type:</b> {{ price_list.type }}</p>
-                                    <p><b>Description:</b> {{ price_list.description }}</p>
-                                    
-                                    {% if price_list.item_rate_type == 'Percentage' %}
-                                        <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
-                                    {% elif price_list.item_rate_type == 'Each Item' %}
-                                        <p><b>Details:</b> Each Item</p>
-                                    {% endif %}
-                                    <p><b>Rounding:</b> {{ price_list.round_off }}</p>
-                                    <p><b>Currency:</b> {{ price_list.currency }}</p>
-                                </div>
-                            </div>
-                            <div class="mt-4 text-white table rounded">
-                                <h3 class="text-white">Items in Price List</h3>
-                                <table class="table table-bordered rounded text-white" >
-                                    <thead>
-                                        <tr>
-                                            <th>Item Name</th>
-                                            <th>Standard Rate</th>
-                                            <th>Custom Rate</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in items %}
-                                            <tr>
-                                                <td>{{ item.item.item_name }}</td>
-                                                <td>{{ item.standard_rate }}</td>
-                                                <td>{{ item.custom_rate }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div> -->
-
-
                         <div class="details-container">
                             <div class="inner-container text-black">
-                                <h2>Price List Details <b>{{ price_list.name }}</b> </h2>
+                                <h2><b>{{ price_list.name }}</b> </h2>
                     
                                 <div class="row mt-4">
                                     <div class="col-md-6">
@@ -495,21 +454,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-Ev2QLO/xB7oWe9yZ9ZKfNL4/rI91JcxVwDorGnS8mpE4K2H8lPcJbXbu+U53SknxLvEO2Dg4I3nk2f6r59dzWg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-JBnKdD6fzZxB1sdbBUz0qwZRiA84ZgeBp6T5qL/zUa8z+prM7zvmknGQn6uAkeTn5uaqQpIs4s6f6FLSbNPGw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-Bk2IxCYIbW6l0/mD4YKs/wE6xxvCEjVyQVuRj2VuTKlf6Ayb6BjdrM6OtqLZiVNiGKcFtdNPxXEhR9Wx4sLh9g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<!-- <script>
-    function shareToWhatsApp() {
-        // Assuming you have a publicly accessible URL for the PDF
-        var pdfUrl = 'https://example.com/path/to/your/pdf_price_list.html';
-    
-        // Customize your message
-        var message = "Check out these price lists:\n" + pdfUrl;
-    
-        // Create a WhatsApp link
-        var whatsappLink = "https://wa.me/?text=" + encodeURIComponent(message);
-    
-        // Open WhatsApp in a new tab/window
-        window.open(whatsappLink, '_blank');
-    }
-</script> -->
+
 <script>
     function deleteComment(commentId, priceListId) {
         if (confirm('Are you sure you want to delete this comment?')) {
@@ -551,24 +496,9 @@
           }
       </script>
     <script>
-        
 
-
-        function sharePriceList() {
-        }
-
-        
         function printPriceList() {
             window.print();
-        }
-
-        function generatePDF() {
-        }
-
-        function addComment() {
-        }
-
-        function attachFile() {
         }
 
         function toggleStatus() {

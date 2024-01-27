@@ -7,9 +7,13 @@
         <div class="container-fluid ">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb text-light">
-                 {% if log_id.user_type == 'Staff' %} <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>{% endif %}
-                 {% if log_id.user_type == 'Company' %} <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>{% endif %}
-                  <li class="breadcrumb-item" aria-current="page">Over view</li>
+                    {% if log_details.user_type == 'Staff' %}
+                        <li class="breadcrumb-item"><a href="{% url 'staff_dashboard' %}" class="text-warning">Dashboard</a></li>
+                    {% endif %}
+                    {% if log_details.user_type == 'Company' %}
+                        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning">Dashboard</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item" aria-current="page">All price lists</li>
                 </ol>
             </nav>
           <div> 
@@ -106,11 +110,11 @@
                     </div>
 
                     <!-- Import Modal -->
-                    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
+                    <div class="modal fade mt-5" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content "style="background-color: #3b3b3b;">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="importModalLabel">Import Price List</h5>
+                                    <h5 class="modal-title text-light" id="importModalLabel">Import Price List</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -119,9 +123,15 @@
                                     <form action="{% url 'import_price_list' %}" method="post" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <div class="form-group">
-                                            <label for="file">Select File:</label>
+                                            <label for="file1">Select File (File 1):</label>
                                             <input type="file" name="file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                         </div>
+                                        <br>
+                                        <!-- <div class="form-group">
+                                            <label for="file2">Select File (File 2):</label>
+                                            <input type="file" name="file2" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        </div> -->
+                                        <br>
                                         <button type="submit" class="btn btn-outline-warning">
                                             <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
                                         </button>
@@ -130,9 +140,6 @@
                             </div>
                         </div>
                     </div>
-                    
-
-
                     <!-- price lists table -->
                     <div class="table-responsive " style="overflow-x:auto;margin-top: 20px;">
                         <table id="table" class="table " >
@@ -208,56 +215,6 @@
 <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
-<script>
-    document.getElementById('importBtn').addEventListener('click', function() {
-        // Simulate input file click
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel';
-        input.addEventListener('change', handleFileSelect);
-        input.click();
-    });
-
-    
-        function handleFileSelect(event) {
-            var file = event.target.files[0];
-    
-            if (file) {
-                Papa.parse(file, {
-                    header: true,  // Assuming the first row contains headers
-                    complete: function(results) {
-                        // `results.data` contains parsed data, handle it accordingly
-                        console.log(results.data);
-    
-                        // Get the table body
-                        var tableBody = document.getElementById('table').getElementsByTagName('tbody')[0];
-    
-                        // Iterate through results.data and add rows to the table
-                        results.data.forEach(function(row) {
-                            // Create a new row
-                            var newRow = tableBody.insertRow(tableBody.rows.length);
-    
-                            // Populate cells with data
-                            newRow.insertCell(0).textContent = row['#'];
-                            newRow.insertCell(1).textContent = row['DATE'];
-                            newRow.insertCell(2).textContent = row['NAME']; 
-                            newRow.insertCell(3).textContent = row['DESCRIPTION'];
-                            newRow.insertCell(4).textContent = row['TYPE'];
-                            newRow.insertCell(5).textContent = row['ROUNDING'];
-                            newRow.insertCell(6).textContent = row['STATUS'];
-                            newRow.insertCell(7).textContent = row['DETAILS']; 
-                            // Add more cells based on your table structure
-                        });
-                    }
-                });
-            }
-        }
-
-    
-
-</script>
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 
 <script>
@@ -313,6 +270,5 @@
 </script>
     
 </body>
-
 </html>
 {% endblock %}
