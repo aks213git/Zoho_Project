@@ -14,41 +14,37 @@
     th,
     td {
         border-bottom: 1px solid black;
-        padding: 12px; 
+        padding: 1.92vh; 
         text-align: center;
-        font-size: 18px; 
-    }
-
-    .dashed-line {
-        border-top: 1px dashed #000;
-        margin: 20px 0;
+        font-size: 2.88vh; 
     }
 
     .details-container {
         background-color: #c4c1c1fd;
-        margin-top: 3%;
-        margin-left: 3%;
-        border-radius: 10px;
-        padding: 30px; 
+        margin-top: 3vh;
+        margin-left: 3vh;
+        border-radius: 1.6vh;
+        padding: 4.8vh; 
     }
-
-    
 
     .table-container {
         background-color: rgb(61, 61, 61);
-        border-radius: 10px;
-        padding: 30px; 
-        margin-top: 20px; 
+        border-radius: 1.6vh;
+        padding: 4.8vh; 
+        margin-top: 3.2vh; 
     }
 
     h2 {
         text-align: center;
-        font-size: 24px;
-        
+        font-size: 3.74vh;
     }
 
     p {
-        font-size: 16px; 
+        font-size: 2.56vh; 
+    }
+    .left-side{
+
+        border-right: .5vh solid  rgb(61, 61, 61);
     }
     @media print {
         body * {
@@ -80,13 +76,8 @@
             font-size: 18px; 
         }
     
-        .dashed-line {
-            border-top: 1px dashed #000;
-            margin: 20px 0;
-        }
-    
         .details-container {
-            background-color: #f10101fd;
+            background-color: #6a6a6afd;
             margin-top: 3%;
             
             border-radius: 10px;
@@ -112,7 +103,17 @@
             font-size: 16px; 
         }
     }
+    
+    @media (max-width: 767px) {
+        .left-side {
+            border-right: 0; 
+            border-bottom: .5vh solid ;
+            padding-bottom: 2.4vh; 
+        }
+        
+    }
 </style>
+
 
 
 <body>
@@ -130,7 +131,7 @@
                 <div class="row p-4 rounded bg-black" style=" border-radius: 5px">
                     
                     <!------------- overview left side ------------------->
-                    <div class="col-md-4 p-2" style="border-right: 5px solid rgb(219, 219, 219); ">
+                    <div class="left-side col-md-4 p-2 border-right border-warning" >
                         <h4 class="text-light mb-4">All Price Lists</h4>
                         <div class="  d-flex mb-3 ">
                             <div class="input-group">
@@ -162,13 +163,13 @@
                             {% for pl in price_lists %}
                             <li class="border-bottom">
                                 <a href="{% url 'price_list_details' price_list_id=pl.id %}" class="text-light">
-                                    <div class="row p-3">
-                                        <div class="col-md-6">
+                                    <div class="col-md-12 col-sm-12  row p-3">
+                                        <div class="col-md-6 col-sm-4 ">
                                             <b style="font-size:larger;">{{ pl.name }}</b>
                                             <br><br>
                                             {{ pl.date }}
                                         </div>
-                                        <div class="col-md-6 text-right">
+                                        <div class="col-md-6 col-sm-4 text-right">
                                             {{ pl.status }}
                                             <br><br>
                                             {{ pl.type }}
@@ -179,15 +180,16 @@
                             {% endfor %}
                         </ul>
                     </div>
-
+                    
+                    
                     <!--------- overview right side ------------------->
-                    <div class="col-md-8">
+                    <div class="col-md-8 "> 
                         {% if price_lists %}
                         <h2 class="text-light mb-4">{{ price_list.name }}</h2>
                         
                         
                         <!------------------------- buttons --------------------------------------->
-                        <div class="d-flex justify-content-end">
+                        <div class=" d-flex justify-content-end">
                             <a href="{% url 'edit_price_list' price_list.id %}" class="btn btn-outline-warning" role="button"><i class="fa fa-pencil-square-o " aria-hidden="true"></i></a>
                             
                             <!-- share dropdown -->
@@ -216,15 +218,12 @@
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item text-dark" href="#" data-toggle="modal" data-target="#attachFileModal">Attach File</a>
                                     <a class="dropdown-item text-dark" href="{% if price_list.attachment %}{{ price_list.attachment.url }}{% else %}#{% endif %}" download="{% if price_list.attachment %}{{ price_list.attachment.name }}{% endif %}" {% if not price_list.attachment %}style="display: none;"{% endif %}>Download File</a>
-
-                                    
-
                                 </div>
                             </div>
                             
                             <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fa fa-trash"></i></a>
                             <a class="btn btn-outline-warning ms-2 " href="#" data-toggle="modal" data-target="#TransactionHistory"><i class="fa-solid fa-clock-rotate-left"></i></a>
-                            <button id="toggleStatusButton" class="btn btn-outline-warning ms-2" data-status="{{ price_list.status }}" onclick="toggleStatus()">
+                            <button id="toggleStatusButton" class="btn btn-outline-warning ms-2 " data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
                                 Active
                                 {% elif price_list.status == 'Inactive' %}
@@ -232,6 +231,7 @@
                                 {% endif %}
                             </button>
                         </div>
+                        <!------------------------- buttons end--------------------------------------->
                         
 
                         {% if messages %}
@@ -262,9 +262,10 @@
                     
                                 <div class="table-container">
                                     <h2 class="text-light">Items in Price List</h2>
-                                    <table class="table  rounded text-light ">
+                                    <table class="table table-responsive table-sm rounded text-light ">
                                         <thead>
                                             <tr>
+                                                <!-- <th>#</th> -->
                                                 <th>Item Name</th>
                                                 <th>Standard Rate</th>
                                                 <th>Custom Rate</th>
@@ -273,6 +274,7 @@
                                         <tbody>
                                             {% for item in items %}
                                                 <tr>
+                                                    <!-- <td>{{ forloop.counter }}</td> -->
                                                     <td>{{ item.item.item_name }}</td>
                                                     <td>{{ item.standard_rate }}</td>
                                                     <td>{{ item.custom_rate }}</td>
@@ -361,21 +363,21 @@
                                             <table class="table rounded bg-black mt-3 text-light text-center">
                                                 <thead>
                                                     <tr class="font-weight-bold">
-                                                        <th scope="col" class="">NO.</th>
-                                                        <th scope="col" class="">COMMENTS</th>
-                                                        <th scope="col" class="">BY</th>
-                                                        <th scope="col" class="">DATE</th>
-                                                        <th scope="col" class="">DELETE</th>
+                                                        <th scope="col" class="border-bottom border-dark">NO.</th>
+                                                        <th scope="col" class="border-bottom border-dark">COMMENTS</th>
+                                                        <th scope="col" class="border-bottom border-dark">BY</th>
+                                                        <th scope="col" class="border-bottom border-dark">DATE</th>
+                                                        <th scope="col" class="border-bottom border-dark">DELETE</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for comment in comments %}
                                                         <tr>
-                                                            <td>{{ forloop.counter }}</td>
-                                                            <td>{{ comment.comment }}</td>
-                                                            <td>{{comment.login_details.first_name}} {{comment.login_details.last_name}}</td>
-                                                            <td>{{ comment.date_added }}</td>
-                                                            <td>
+                                                            <td class="border-bottom border-dark">{{ forloop.counter }}</td>
+                                                            <td class="border-bottom border-dark">{{ comment.comment }}</td>
+                                                            <td class="border-bottom border-dark">{{comment.login_details.first_name}} {{comment.login_details.last_name}}</td>
+                                                            <td class="border-bottom border-dark">{{ comment.date_added }}</td>
+                                                            <td class="border-bottom border-dark">
                                                                 <a class="btn btn-outline-danger btn-sm" onclick="deleteComment('{{ comment.id }}', '{{ price_list.id }}')">
                                                                     <i class="fa fa-trash"></i>
                                                                 </a>
@@ -408,22 +410,22 @@
                                     </div>
                                     <div class="modal-body">
                                         {% if transaction_history %}
-                                            <table class="table border-dark rounded bg-black text-white text-center p-2" >
+                                            <table class="table rounded bg-black text-white text-center p-2" >
                                                 <thead>
                                                     <tr>
-                                                        <th scope="col"><b>NO.</b></th>
-                                                        <th scope="col"><b>DATE</b></th>
-                                                        <th scope="col"><b>ACTION</b></th>
-                                                        <th scope="col"><b>BY</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>NO.</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>DATE</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>ACTION</b></th>
+                                                        <th scope="col" class="border-bottom border-dark"><b>BY</b></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for transaction in transaction_history %}
                                                         <tr>
-                                                            <td>{{ forloop.counter }}</td>
-                                                            <td>{{ transaction.date }}</td>
-                                                            <td>{{ transaction.action }}</td>
-                                                            <td>{{ transaction.login_details.username }}</td>
+                                                            <td class="border-bottom border-dark">{{ forloop.counter }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.date }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.action }}</td>
+                                                            <td class="border-bottom border-dark">{{ transaction.login_details.username }}</td>
                                                         </tr>
                                                     {% endfor %}
                                                 </tbody>

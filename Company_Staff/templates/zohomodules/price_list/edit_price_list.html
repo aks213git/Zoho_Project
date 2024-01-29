@@ -23,9 +23,9 @@
                     {% csrf_token %}
 
                     <div class="form-group row">
-                        <label for="name" class="col-sm-2 col-form-label text-white">Name:</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="name" class="form-control-sm" value="{{ price_list.name }}" required>
+                        <label for="name" class="col-sm-2 col-form-label text-white text-white d-flex flex-column align-items-start">Name:</label>
+                        <div class="col-md-4 align-items-start">
+                            <input type="text" name="name" class="form-control bg-light text-black" value="{{ price_list.name }}" required>
                         </div>
                     </div><br>
 
@@ -57,34 +57,34 @@
                         </div>
                     </div><br>
 
-                    <div class="form-group row">
-                        <label for="description" class="col-sm-2 col-form-label text-white">Description:</label>
-                        <div class="col-sm-10">
-                            <textarea name="description" rows="2" class="form-control-sm" >{{ price_list.description }}</textarea>
+                    <div class=" form-group row">
+                        <label for="description" class="col-md-2 col-form-label text-white">Description:</label>
+                        <div class="col-md-4">
+                            <textarea name="description" rows="2"  class="form-control bg-light text-black" >{{ price_list.description }}</textarea>
                         </div>
                     </div><br>
 
-                    <div id="percentage_fields" style="display: none;">
+                    <div id="percentage_fields" style="display: none; ">
                         <div class="form-group row">
                             <label for="percentage_type" class="col-sm-2 col-form-label text-white">Percentage:</label>
-                            <div class="col-sm-10">
-                                <div class="input-group">
-                                    <select name="percentage_type" class="form-control-sm">
+                            <div class="col-md-4" style="color:black" >
+                                <div class="input-group bg-light text-black rounded ">
+                                    <select name="percentage_type" class="form-control text-black">
                                         <option value="Markup" {% if price_list.percentage_type == "Markup" %}selected{% endif %}>Markup</option>
                                         <option value="Markdown" {% if price_list.percentage_type == "Markdown" %}selected{% endif %}>Markdown</option>
                                     </select>
-                                    <input type="number" name="percentage_value" class="form-control-sm" value="{{ price_list.percentage_value }}" placeholder="%">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">%</span>
+                                    <div  class="input-group-append  col-md-8 d-flex">
+                                        <input type="number" name="percentage_value" class="form-control bg-light" value="{{ price_list.percentage_value }}" placeholder="%">
+                                        <span class="col-md-2 bg-light text-black text-center p-2 rounded">%</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
-                            <label for="round_off" class="col-sm-2 col-form-label text-white">Round Off:</label>
-                            <div class="col-sm-10">
-                                <select name="round_off" class="form-control-sm">
+                        <div class="form-group row ">
+                            <label for="round_off" class="col-md-2 col-form-label  text-white ">Round Off:</label>
+                            <div class="col-md-4 ">
+                                <select name="round_off" class="form-control bg-light text-black">
                                     <option value="Never Mind" {% if price_list.round_off == "Never Mind" or price_list.item_rate_type == "Each Item" %}selected{% endif %}>Never Mind</option>
                                     <option value="Nearest Whole Number" {% if price_list.round_off == "Nearest Whole Number" %}selected{% endif %}>Nearest Whole Number</option>
                                     <option value="0.99" {% if price_list.round_off == "0.99" %}selected{% endif %}>0.99</option>
@@ -102,13 +102,13 @@
                     <div id="currency_field" style="display: none;">
                         <div class="form-group row">
                             <label for="currency" class="col-sm-2 col-form-label text-white">Currency:</label>
-                            <div class="col-sm-10">
-                                <select name="currency" class="form-control-sm">
+                            <div class="col-md-4">
+                                <select name="currency" class="form-control bg-light text-black">
                                     <option value="Indian Rupee" {% if price_list.currency == "Indian Rupee" %}selected{% endif %}>Indian Rupee</option>
                                 </select>
                             </div>
                         </div>
-                        <h2>Customize Item Rates in Bulk</h2>
+                        <h2 class="text-light mt-3 align-center">Customize Item Rates in Bulk</h2>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>

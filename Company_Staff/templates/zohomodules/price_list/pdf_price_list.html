@@ -5,27 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <style>
         body {
-            font-size: 16px; 
+            font-size: 16px;
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
+            background-color: rgb(61, 61, 61);
         }
 
         th,
         td {
             border: 1px solid black;
-            padding: 12px; 
+            padding: 12px;
             text-align: center;
-            font-size: 18px; 
-        }
-
-        .dashed-line {
-            border-top: 1px dashed #000;
-            margin: 20px 0;
+            font-size: 18px;
+            color: white;
         }
 
         .details-container {
@@ -33,21 +31,27 @@
             margin-top: 3%;
             margin-left: 3%;
             border-radius: 10px;
-            padding: 30px; 
+            padding: 30px;
+        }
+        .details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .inner-container {
             background-color: #ffffff;
             border-radius: 10px;
-            padding: 30px; 
-            margin-top: 20px; 
+            padding: 30px;
+            margin-top: 20px;
+
         }
 
         .table-container {
-            background-color: rgb(250, 170, 30);
+            background-color: rgb(61, 61, 61);
             border-radius: 10px;
-            padding: 30px; 
-            margin-top: 20px; 
+            padding: 30px;
+            margin-top: 20px;
         }
 
         h2 {
@@ -56,7 +60,11 @@
         }
 
         p {
-            font-size: 16px; 
+            font-size: 16px;
+            margin-bottom: 0; /* Add this to remove the default bottom margin of <p> */
+        }
+        .text-light{
+            color: white;
         }
     </style>
 </head>
@@ -64,26 +72,59 @@
 <body>
     <div class="details-container">
         <div class="inner-container">
-            <h2>Price List Details <b>{{ price_list.name }}</b> </h2>
+            <h2>Price List Details:  <b>{{ price_list.name }}</b> </h2>
 
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <p><b>Type:</b> {{ price_list.type }}</p>
-                    <p><b>Description:</b> {{ price_list.description }}</p>
+            <div class="details row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label "><b>Type:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.type }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Description:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.description }}</p>
+                        </div>
+                    </div>
 
                     {% if price_list.item_rate_type == 'Percentage' %}
-                    <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Details:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">{{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                            </div>
+                        </div>
                     {% elif price_list.item_rate_type == 'Each Item' %}
-                    <p><b>Details:</b> Each Item</p>
+                        <div class="form-group row">
+                            <label class="col-md-2 col-form-label"><b>Details:</b></label>
+                            <div class="col-md-8">
+                                <p class="form-control-plaintext">Each Item</p>
+                            </div>
+                        </div>
                     {% endif %}
-                    <p><b>Rounding:</b> {{ price_list.round_off }}</p>
-                    <p><b>Currency:</b> {{ price_list.currency }}</p>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Rounding:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.round_off }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label"><b>Currency:</b></label>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">{{ price_list.currency }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="table-container">
-                <h2 class="text-white">Items in Price List</h2>
-                <table class="table table-bordered rounded text-black">
+                <h2 class="text-light">Items in Price List</h2>
+                <table class="table table-bordered rounded text-light">
                     <thead>
                         <tr>
                             <th>Item Name</th>
@@ -93,17 +134,21 @@
                     </thead>
                     <tbody>
                         {% for item in price_list_item %}
-                        <tr>
-                            <td>{{ item.item.item_name }}</td>
-                            <td>{{ item.standard_rate }}</td>
-                            <td>{{ item.custom_rate }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ item.item.item_name }}</td>
+                                <td>{{ item.standard_rate }}</td>
+                                <td>{{ item.custom_rate }}</td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 
 </html>

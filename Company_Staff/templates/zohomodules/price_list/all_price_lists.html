@@ -123,14 +123,14 @@
                                     <form action="{% url 'import_price_list' %}" method="post" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <div class="form-group">
-                                            <label for="file1">Select File (File 1):</label>
-                                            <input type="file" name="file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                            <label for="price_list_file">Select File (File 1):</label>
+                                            <input type="file" name="price_list_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                         </div>
                                         <br>
-                                        <!-- <div class="form-group">
-                                            <label for="file2">Select File (File 2):</label>
-                                            <input type="file" name="file2" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                                        </div> -->
+                                        <div class="form-group">
+                                            <label for="items_file">Select File (File 2):</label>
+                                            <input type="file" name="items_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                        </div>
                                         <br>
                                         <button type="submit" class="btn btn-outline-warning">
                                             <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
