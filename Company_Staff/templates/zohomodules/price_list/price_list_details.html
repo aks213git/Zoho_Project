@@ -22,7 +22,6 @@
     .details-container {
         background-color: #c4c1c1fd;
         margin-top: 3vh;
-        margin-left: 3vh;
         border-radius: 1.6vh;
         padding: 4.8vh; 
     }
@@ -51,18 +50,22 @@
             visibility: hidden;
             color: black;
         }
-
+    
         .details-container,
         .details-container * {
             visibility: visible;
         }
-
+    
         .details-container {
+            display: flex;
+            flex-direction: row;
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
+            gap: 20px;
         }
+    
         table {
             border-collapse: collapse;
             width: 100%;
@@ -71,26 +74,23 @@
         th,
         td {
             border-bottom: 1px solid black;
-            padding: 12px; 
+            padding: 12px;
             text-align: center;
-            font-size: 18px; 
+            font-size: 18px;
         }
     
         .details-container {
             background-color: #6a6a6afd;
             margin-top: 3%;
-            
             border-radius: 10px;
-            padding: 30px; 
+            padding: 30px;
         }
-    
-        
     
         .table-container {
             background-color: rgb(61, 61, 61);
             border-radius: 10px;
-            padding: 30px; 
-            margin-top: 20px; 
+            padding: 30px;
+            margin-top: 20px;
         }
     
         h2 {
@@ -100,9 +100,10 @@
         }
     
         p {
-            font-size: 16px; 
+            font-size: 16px;
         }
     }
+    
     
     @media (max-width: 767px) {
         .left-side {
@@ -241,28 +242,71 @@
                         {% endif %}
 
 
-                        <div class="details-container">
+                        <div class="details-container col-md-12">
                             <div class="inner-container text-black">
                                 <h2><b>{{ price_list.name }}</b> </h2>
                     
-                                <div class="row mt-4">
-                                    <div class="col-md-6">
-                                        <p><b>Type:</b> {{ price_list.type }}</p>
-                                        <p><b>Description:</b> {{ price_list.description }}</p>
-                    
-                                        {% if price_list.item_rate_type == 'Percentage' %}
-                                        <p><b>Details:</b> {{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
-                                        {% elif price_list.item_rate_type == 'Each Item' %}
-                                        <p><b>Details:</b> Each Item</p>
-                                        {% endif %}
-                                        <p><b>Rounding:</b> {{ price_list.round_off }}</p>
-                                        <p><b>Currency:</b> {{ price_list.currency }}</p>
+                                <div class="col-md-12 row mt-4">
+                                    <!-- pl Type Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Type:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.type }}</p>
+                                        </div>
                                     </div>
+                                
+                                    <!-- Description Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Description:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.description }}</p>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Details Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Details:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            {% if price_list.item_rate_type == 'Percentage' %}
+                                            <p>{{ price_list.percentage_type }}- {{ price_list.percentage_value }}%</p>
+                                            {% elif price_list.item_rate_type == 'Each Item' %}
+                                            <p>Each Item</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Rounding Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Rounding:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.round_off }}</p>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- Currency Row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <b>Currency:</b>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <p>{{ price_list.currency }}</p>
+                                        </div>
+                                    </div>
+                                
                                 </div>
+                                
                     
                                 <div class="table-container">
                                     <h2 class="text-light">Items in Price List</h2>
-                                    <table class="table table-responsive table-sm rounded text-light ">
+                                    <table class="table table-responsive table-sm rounded text-light p-2 ">
                                         <thead>
                                             <tr>
                                                 <!-- <th>#</th> -->

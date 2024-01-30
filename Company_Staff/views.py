@@ -594,7 +594,7 @@ def import_price_list(request):
             items_file = request.FILES['items_file']
 
             try:
-                # Read PriceList Excel file
+                # Read PriceList Excel file(price_list_file)
                 price_list_df = pd.read_excel(price_list_file)
 
                 # Create PriceList and PriceListItem instances
@@ -608,7 +608,7 @@ def import_price_list(request):
                     new_price_list = PriceList.objects.create(
                         name=row['NAME'],
                         type=row['TYPE'],
-                        item_rate_type=row['ITEM_RATE_TYPE'],  # Assuming this is intentional
+                        item_rate_type=row['ITEM_RATE_TYPE'], 
                         description=row['DESCRIPTION'],
                         percentage_type=row['PERCENTAGE_TYPE'],
                         percentage_value=row['PERCENTAGE_VALUE'],
@@ -624,15 +624,29 @@ def import_price_list(request):
                         action='Created',
                     )
 
-                    # Read Items Excel file for each PriceList
+                    # Read Items Excel file(items_file) for each PriceList
                     items_df = pd.read_excel(items_file)
 
                     # Create PriceListItem instances for active items only
                     for item_index, item_row in items_df.iterrows():
                         item = Items.objects.filter(item_name=item_row['ITEM_NAME'], company=dash_details, activation_tag='active').first()
                         if item:
-                            custom_rate = item_row.get('CUSTOM_RATE', item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                            # Use custom rate if available, otherwise use the standard rate of the item
+                            # custom_rate = item_row.get('CUSTOM_RATE', item.selling_price if new_price_list.type == 'Sales' else item.purchase_price)
+                            # custom_rate1 = item_row['SELLING_CUSTOM_RATE'] if new_price_list.type == 'Sales' else standard_rate, item_row['PURCHASE_CUSTOM_RATE'] if new_price_list.type == 'Purchase' else standard_rate
+                            
+                            # standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                            # custom_rate1 = item_row.get('SELLING_CUSTOM_RATE',item.selling_price if new_price_list.type == 'Sales' else  'PURCHASE_CUSTOM_RATE',item.purchase_price )
+                            # custom_rate = standard_rate if new_price_list.item_rate_type == 'Percentage' else custom_rate1
+                            
                             standard_rate = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                            standard_rate1 = item.selling_price if new_price_list.type == 'Sales' else item.purchase_price
+                            custom_rate1 = item_row.get('SELLING_CUSTOM_RATE', standard_rate1) if new_price_list.type == 'Sales' else item_row.get('PURCHASE_CUSTOM_RATE', standard_rate1)
+                            custom_rate = standard_rate if new_price_list.item_rate_type == 'Percentage' else custom_rate1
+
+
+                            
+                            
                             PriceListItem.objects.create(
                                 company=dash_details,
                                 login_details=log_details,

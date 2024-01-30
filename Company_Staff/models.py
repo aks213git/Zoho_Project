@@ -80,8 +80,8 @@ class PriceListItem(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE)
     price_list = models.ForeignKey(PriceList, on_delete=models.CASCADE)
     item = models.ForeignKey(Items, on_delete=models.CASCADE)  
-    standard_rate = models.DecimalField(max_digits=10, decimal_places=2,null=True)
-    custom_rate = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+    standard_rate = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    custom_rate = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
 
 class PriceListTransactionHistory(models.Model):
     company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)
