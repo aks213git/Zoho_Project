@@ -72,43 +72,6 @@
                         </div>
                     </div>
 
-                    <!-- Email Modal -->
-                    <div class="modal fade" id="EmailModal">
-                        <div class="modal-dialog modal-xl">
-                          <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                            <div class="modal-header" style="background: rgb(32, 35, 37);">
-                              <h5 class="m-3 text-uppercase" id="EmailModalLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
-                              <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
-                                  aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body" style="background: rgb(32, 35, 37);">
-                              <div class="card p-3 m-3">
-                                <form action="{% url 'email_all_price_lists' %}" method="post" class="needs-validation"
-                                  id="share_to_email_form" autocomplete="off">
-                                  {% csrf_token %}
-                                  <div class="form-group">
-                                    <label for="emailIds" style="color: #000;">Email IDs</label>
-                                    <input class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
-                                      placeholder="Multiple emails can be added by separating with a comma(,)." required >
-                                  </div>
-                                  <div class="form-group mt-2">
-                                    <label for="item_unitname"  style="color: #000;">Message(optional)</label>
-                                    <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
-                                      rows="4" placeholder="This message will be sent along with details."></textarea>
-                                  </div>
-                           
-                              </div>
-                              <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
-                                <!-- <button type="submit">submit</button> -->
-                                <input type="submit" id="share_with_email"
-                                  class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
-                              </div>
-                            </div>
-                          </form>
-                          </div>
-                        </div>
-                    </div>
-
                     <!-- Import Modal -->
                     <div class="modal fade mt-5" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg" role="document">
@@ -123,12 +86,12 @@
                                     <form action="{% url 'import_price_list' %}" method="post" enctype="multipart/form-data">
                                         {% csrf_token %}
                                         <div class="form-group">
-                                            <label for="price_list_file">Select File (File 1):</label>
+                                            <label for="price_list_file">Select price_list File :</label>
                                             <input type="file" name="price_list_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                         </div>
                                         <br>
                                         <div class="form-group">
-                                            <label for="items_file">Select File (File 2):</label>
+                                            <label for="items_file">Select items File :</label>
                                             <input type="file" name="items_file" class="form-control" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                                         </div>
                                         <br>

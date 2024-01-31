@@ -12,27 +12,28 @@
         }
 
         table {
-            border-collapse: collapse;
             width: 100%;
             background-color: rgb(61, 61, 61);
         }
 
         th,
         td {
-            border: 1px solid black;
-            padding: 12px;
+            border: 0.5vh solid black;
+            padding: 1.5vh;
             text-align: center;
             font-size: 18px;
             color: white;
         }
 
         .details-container {
-            background-color: #c4c1c1fd;
-            margin-top: 3%;
-            margin-left: 3%;
-            border-radius: 10px;
-            padding: 30px;
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
         }
+
         .details {
             display: flex;
             flex-direction: column;
@@ -41,29 +42,29 @@
 
         .inner-container {
             background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            margin-top: 20px;
-
+            border-radius: 1vh;
+            padding: 3vh;
+            margin-top: 2vh;
         }
 
         .table-container {
             background-color: rgb(61, 61, 61);
-            border-radius: 10px;
-            padding: 30px;
-            margin-top: 20px;
+            border-radius: 1vh;
+            padding: 3vh;
         }
-
+        
         h2 {
+            padding: 3vh;
             text-align: center;
             font-size: 24px;
         }
 
         p {
             font-size: 16px;
-            margin-bottom: 0; /* Add this to remove the default bottom margin of <p> */
+            margin-bottom: 0; 
         }
-        .text-light{
+
+        .text-light {
             color: white;
         }
     </style>
@@ -72,7 +73,7 @@
 <body>
     <div class="details-container">
         <div class="inner-container">
-            <h2>Price List Details:  <b>{{ price_list.name }}</b> </h2>
+            <h2>Price List Details: <b>{{ price_list.name }}</b> </h2>
 
             <div class="details row">
                 <div class="col-md-12">
@@ -124,7 +125,7 @@
 
             <div class="table-container">
                 <h2 class="text-light">Items in Price List</h2>
-                <table class="table table-bordered rounded text-light">
+                <table>
                     <thead>
                         <tr>
                             <th>Item Name</th>
