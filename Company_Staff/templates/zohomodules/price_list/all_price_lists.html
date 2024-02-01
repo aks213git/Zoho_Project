@@ -120,16 +120,13 @@
                             </thead>
                             <tbody>
                                 {% for price_list in price_lists %}
+                                <a href="{% url 'price_list_details' price_list.id %}">
                                 <tr class="text-white" style="text-align: center;" >
-                                    <a href="{% url 'price_list_details' price_list.id %}">
 
-                                    <td>{{ forloop.counter }}</td>
-
-                                    <td>{{ price_list.date }}</td>
-                                    
-                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.name }}</td></a>
-                                
-                                    <td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ forloop.counter }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.date }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.name }} </a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">
                                         {% if price_list.description %}
                                             <span title="{{ price_list.description }}">
                                                 <i class="fa fa-comment" aria-hidden="true"></i> 
@@ -137,30 +134,22 @@
                                         {% else %}
                                             <i class="fa fa-comment-o" aria-hidden="true"></i> 
                                         {% endif %}
+                                    </a>
                                     </td>
-                                    
-                                    <td>{{ price_list.type }}</td>
-                                    <td class="text-white">
-
-                                        <!-- {% if price_list.item_rate_type == 'Percentage' %}
-                                            {{ price_list.round_off }}
-                                        {% elif price_list.item_rate_type == 'Each Item' %}
-                                            Never Mind
-                                        {% endif %} -->
-                                        {{ price_list.round_off }}
-                                    </td>
-                                    <td>{{ price_list.get_status_display }}</td>
-                                    <td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.type }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.round_off }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">{{ price_list.get_status_display }}</a></td>
+                                    <td><a href="{% url 'price_list_details' price_list.id %}" class="text-reset text-decoration-none">
                                         {% if price_list.item_rate_type == 'Percentage' %}
                                             {{ price_list.percentage_type }}
                                         {% elif price_list.item_rate_type == 'Each Item' %}
                                             Each Item
                                         {% endif %}
-                                    </td>
-                                </a>
+                                    </a></td>
                                 </tr>
-                                {% endfor %}
-                            </tbody>
+                            </a>
+                        </tbody>
+                        {% endfor %}
                         </table>
                     </div>
                 </div>

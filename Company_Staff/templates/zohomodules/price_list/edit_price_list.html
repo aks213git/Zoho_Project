@@ -109,17 +109,19 @@
                             </div>
                         </div>
                         <h2 class="text-light mt-3 align-center">Customize Item Rates in Bulk</h2>
-                        <table class="table table-bordered">
+
+                        <div class="table-responsive " style="overflow-x:auto;">
+                        <table class="table table-bordered text-light table-sm" >
                             <thead>
-                                <tr>
-                                    <th>Item Details</th>
-                                    <th>Standard Rate (INR)</th>
-                                    <th>Custom Rate (INR)</th>
+                                <tr class="text-center align-middle p-2">
+                                    <th scope="col" class="py-3">Item Details</th>
+                                    <th scope="col" class="py-3">Standard Rate (INR)</th>
+                                    <th scope="col" class="py-3">Custom Rate (INR)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in items %}
-                                <tr>
+                                <tr class="text-center align-middle">
                                     <td>{{ item.item.item_name }}</td>
                                     <td class="standard-rate" data-sales-price="{{ item.item.selling_price }}" data-purchase-price="{{ item.item.purchase_price }}"></td>
                                     <td>
@@ -130,6 +132,7 @@
                             </tbody>
                             
                         </table>
+                    </div>
                     </div><br>
 
 
@@ -158,11 +161,11 @@
     
             if (selectedType && selectedType.value === "Sales") {
                 standardRateElements.forEach(element => {
-                    element.innerText = `Sales: ${element.dataset.salesPrice}`;
+                    element.innerText = ` ${element.dataset.salesPrice}`;
                 });
             } else if (selectedType && selectedType.value === "Purchase") {
                 standardRateElements.forEach(element => {
-                    element.innerText = `Purchase: ${element.dataset.purchasePrice}`;
+                    element.innerText = ` ${element.dataset.purchasePrice}`;
                 });
             }
         }
@@ -253,53 +256,3 @@
 </html>
 
 {% endblock %}
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const typeRadios = document.getElementsByName("type");
-        const itemRateTypeRadios = document.getElementsByName("item_rate_type");
-        const percentageFields = document.getElementById("percentage_fields");
-        const currencyField = document.getElementById("currency_field");
-        const percentageTypeSelect = document.getElementsByName("percentage_type")[0];
-        const percentageValueInput = document.getElementsByName("percentage_value")[0];
-
-        function handleTypeChange() {
-            const selectedType = Array.from(typeRadios).find(radio => radio.checked);
-            const standardRateElements = document.querySelectorAll('.standard-rate');
-            
-            if (selectedType && selectedType.value === "Sales") {
-                standardRateElements.forEach(element => {
-                    element.innerText = `Sales: ${element.dataset.salesPrice}`;
-                });
-            } else if (selectedType && selectedType.value === "Purchase") {
-                standardRateElements.forEach(element => {
-                    element.innerText = ` ${element.dataset.purchasePrice}`;
-                });
-            }
-        }
-
-        function handleItemRateTypeChange() {
-            const selectedItemRateType = Array.from(itemRateTypeRadios).find(radio => radio.checked);
-
-            if (selectedItemRateType && selectedItemRateType.value === "Percentage") {
-                percentageFields.style.display = "block";
-                currencyField.style.display = "none";
-            } else if (selectedItemRateType && selectedItemRateType.value === "Each Item") {
-                percentageFields.style.display = "none";
-                currencyField.style.display = "block";
-
-                percentageTypeSelect.removeAttribute("required");
-                percentageValueInput.removeAttribute("required");
-            } else {
-                percentageFields.style.display = "none";
-                currencyField.style.display = "none";
-            }
-        }
-
-        typeRadios.forEach(radio => radio.addEventListener("change", handleTypeChange));
-
-        itemRateTypeRadios.forEach(radio => radio.addEventListener("change", handleItemRateTypeChange));
-
-        handleTypeChange();
-        handleItemRateTypeChange();
-    });
-</script>

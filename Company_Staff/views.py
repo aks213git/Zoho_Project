@@ -560,7 +560,7 @@ def edit_price_list(request, price_list_id):
                 item.save()
             
             
-            return redirect('all_price_lists')
+            return redirect('price_list_details', price_list_id=price_list_id)
         context = {
             'log_details': log_details,
             'details': dash_details,
@@ -602,7 +602,7 @@ def edit_price_list(request, price_list_id):
                     item.custom_rate = custom_rate
                     item.save()
             
-            return redirect('all_price_lists')
+            return redirect('price_list_details', price_list_id=price_list_id)
 
         context = {
             'details': dash_details,
