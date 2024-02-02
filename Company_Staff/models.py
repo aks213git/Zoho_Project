@@ -99,5 +99,5 @@ class PriceListComment(models.Model):
     login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE)
     price_list = models.ForeignKey(PriceList, on_delete=models.CASCADE)
     comment = models.TextField()
-    date_added = models.DateTimeField(auto_now_add=True)
+    date_added = models.DateField(auto_now_add=True)
 

@@ -33,17 +33,8 @@
                               <input type="text" id="search" class="form-control text-dark bg-light" placeholder="Search here..." autocomplete="off">
                           </div>
                           
-                              <div class="input-group-append ms-2 " >
-                                  <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
-                                      <i class="fa fa-filter"></i> 
-                                  </button>
-                                  <div class="dropdown-menu">
-                                      <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
-                                      <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
-                                      <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
-                                  </div>
-                              </div>
-                              <div class="input-group-append ms-2">
+                              
+                              <div class="input-group-append ms-4">
                                   <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
                                       <i class="fas fa-sort"></i> 
                                   </button>
@@ -57,18 +48,28 @@
                         
                         
                         <div class="col-md-6 d-flex justify-content-end h-100 p-2">
-                            <a href="#" id="exportBtn" class="btn btn-outline-warning ms-1">
+                            <div class="input-group-append ms-2 " >
+                                <button class="btn btn-outline-warning" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa fa-filter"></i> 
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="?filter=all{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">All</a>
+                                    <a class="dropdown-item" href="?filter=active{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Active</a>
+                                    <a class="dropdown-item" href="?filter=inactive{% if sort_option != 'all' %}&sort={{ sort_option }}{% endif %}">Inactive</a>
+                                </div>
+                            </div>
+                            <a href="#" id="exportBtn" class="btn btn-outline-warning ms-2">
                                 <i class="fa fa-file-export" style="color: #FFD43B;" aria-hidden="true"></i> Export
                             </a>
                             
                             <!-- <a href="#" id="importBtn" class="btn btn-outline-warning ms-1">
                                 <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
                             </a> -->
-                            <button type="button" class="btn btn-outline-warning ms-1" data-toggle="modal" data-target="#importModal">
+                            <button type="button" class="btn btn-outline-warning ms-2" data-toggle="modal" data-target="#importModal">
                                 <i class="fa fa-file-import ms-1" style="color: #FFD43B;" aria-hidden="true"></i> Import
                             </button>
                             
-                            <a href="{% url 'create_price_list' %}" class="btn btn-warning ms-1">New</a>
+                            <a href="{% url 'create_price_list' %}" class="btn btn-outline-warning ms-2">New  <i class="fas fa-plus" style="color: #FFD43B;"></i></a>
                         </div>
                     </div>
 

@@ -222,7 +222,7 @@
                                 </div>
                             </div>
                             
-                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fa fa-trash"></i></a>
+                            <a href="{% url 'delete_price_list' price_list.id %}" class="btn btn-outline-warning ms-2 "><i class="fas fa-trash"></i></a>
                             <a class="btn btn-outline-warning ms-2 " href="#" data-toggle="modal" data-target="#TransactionHistory"><i class="fa-solid fa-clock-rotate-left"></i></a>
                             <button id="toggleStatusButton" class="btn btn-outline-warning ms-2 " data-status="{{ price_list.status }}" onclick="toggleStatus()">
                                 {% if price_list.status == 'Active' %}
@@ -401,29 +401,29 @@
                                         <form method="post" action="{% url 'add_pricelist_comment' price_list.id %}">
                                             {% csrf_token %}
                                             <label class="text-light" for="comment_text">Add Comment:</label>
-                                            <input type="text" class="form-control bg-black text-light" name="comment_text" class="form-control" required>
+                                            <input type="text" class="form-control  text-light" name="comment_text" class="form-control" required>
                         
                                             <!-- Comment Table -->
-                                            <table class="table rounded bg-black mt-3 text-light text-center">
+                                            <table class="table rounded mt-3 text-light text-center">
                                                 <thead>
-                                                    <tr class="font-weight-bold">
-                                                        <th scope="col" class="border-bottom border-dark">NO.</th>
-                                                        <th scope="col" class="border-bottom border-dark">COMMENTS</th>
-                                                        <th scope="col" class="border-bottom border-dark">BY</th>
-                                                        <th scope="col" class="border-bottom border-dark">DATE</th>
-                                                        <th scope="col" class="border-bottom border-dark">DELETE</th>
+                                                    <tr class="font-weight-bold ">
+                                                        <th scope="col" class="border-light">NO.</th>
+                                                        <th scope="col" class="border-light">COMMENTS</th>
+                                                        <th scope="col" class="border-light">BY</th>
+                                                        <th scope="col" class="border-light">DATE</th>
+                                                        <th scope="col" class="border-light">DELETE</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for comment in comments %}
                                                         <tr>
-                                                            <td class="border-bottom border-dark">{{ forloop.counter }}</td>
-                                                            <td class="border-bottom border-dark">{{ comment.comment }}</td>
-                                                            <td class="border-bottom border-dark">{{comment.login_details.first_name}} {{comment.login_details.last_name}}</td>
-                                                            <td class="border-bottom border-dark">{{ comment.date_added }}</td>
-                                                            <td class="border-bottom border-dark">
-                                                                <a class="btn btn-outline-danger btn-sm" onclick="deleteComment('{{ comment.id }}', '{{ price_list.id }}')">
-                                                                    <i class="fa fa-trash"></i>
+                                                            <td class="border-light">{{ forloop.counter }}</td>
+                                                            <td class="border-light">{{ comment.comment }}</td>
+                                                            <td class="border-light">{{comment.login_details.first_name}} {{comment.login_details.last_name}}</td>
+                                                            <td class="border-light">{{ comment.date_added }}</td>
+                                                            <td class=" border-light">
+                                                                <a class="btn text-danger" onclick="deleteComment('{{ comment.id }}', '{{ price_list.id }}')">
+                                                                    <i class="fas fa-trash"></i>
                                                                 </a>
                                                             </td>
                                                         </tr>
